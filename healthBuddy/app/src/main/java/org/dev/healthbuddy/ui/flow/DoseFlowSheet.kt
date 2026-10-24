@@ -194,6 +194,15 @@ fun DoseFlowSheet(
 
                         if (text.bullets.isNotEmpty()) {
                             Spacer(Modifier.height(14.dp))
+                            val bulletsAreTheAction = support.action == ActionType.FIND_FACILITY ||
+                                support.action == ActionType.READ
+                            if (bulletsAreTheAction && text.actionLabel != null) {
+                                Text(
+                                    text = text.actionLabel,
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                                Spacer(Modifier.height(8.dp))
+                            }
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 text.bullets.forEach { BulletRow(it) }
                             }

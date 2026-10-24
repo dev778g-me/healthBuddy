@@ -29,8 +29,8 @@ Min SDK 31 (Android 12) · target SDK 37.
 |---|---|
 | **Onboarding** | Name + language (EN / हिंदी / मराठी / ଓଡ଼ିଆ). Two questions, nothing else. |
 | **Today** | Needs-attention card, today's doses, next appointment, health tip |
-| **Medicines** | Add / toggle medicines and reminder times; the **+** FAB opens the add form as a bottom sheet; swipe a row left to remove it |
-| **History** | Every dose, its barrier, whether the help was useful, this week's barrier counts, and a one-tap **Share summary** for a clinician |
+| **Medicines** | Add, edit and toggle medicines and reminder times; the **+** FAB opens the add form as a bottom sheet, tapping a row reopens it prefilled; swipe left to remove |
+| **History** | The last 30 days of doses, their barrier, whether the help was useful (answerable later), this week's barrier counts, and a one-tap **Share summary** for a clinician |
 | **Learn** | Six plain-language cards |
 | **Why this matters** | The loop, the research question, the safety stance |
 | **Settings** | Language, theme, private mode, replay demo, reset |
@@ -71,6 +71,8 @@ Run these in order. Each maps to a PRD acceptance criterion.
 8. Close the sheet → a snackbar confirms what was logged; the dashboard card is gone.
 9. **History** → the entry shows `Barrier: It costs too much` and `Helpful: Yes`, and the
    weekly card at the top counts that barrier. It must contain no advice or score.
+   An entry with a barrier but no answer shows **Yes / Not sure / No** chips; tapping one
+   saves it without opening the flow.
    Tap **Share summary** → the Android share sheet opens with a plain-text 30-day
    summary (counts, barriers, medicines). No permission prompt, no network.
 10. **Settings → Replay demo scenario** → resets to Ravi's story **and** opens the missed
@@ -80,6 +82,8 @@ Run these in order. Each maps to a PRD acceptance criterion.
 13. **Settings → Reset all data** → confirm → onboarding returns.
 14. **Medicines** → tap **+**; the add form rises as a bottom sheet over the list (no new
     screen, no back arrow). Save adds the medicine and the sheet closes.
+    Tap an existing row → the same sheet opens **prefilled** and titled "Edit medicine";
+    saving updates the row instead of adding a duplicate. The switch still toggles active.
 15. Swipe a medicine row left; it reveals a red **Remove** action and deletes on
     release. There is no delete icon on the row.
 
@@ -143,3 +147,6 @@ error role and never turned into a score or a scolding.
 ## Docs
 
 - `PRD.md` — full product requirements, safety rules, content spec, demo script.
+- `docs/one-slide.svg` — 16:9 architecture + loop slide, drop-in ready.
+- `docs/one-slide.md` — the same content as text, plus presenter notes.
+- `branding/` — icon vectors, 512 px store art, and how the adaptive icon is wired.

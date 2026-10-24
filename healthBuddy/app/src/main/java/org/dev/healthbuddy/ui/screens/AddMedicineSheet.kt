@@ -54,10 +54,18 @@ fun AddMedicineSheet(state: AppState) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
-    var name by remember { mutableStateOf("") }
-    var dose by remember { mutableStateOf("") }
-    var condition by remember { mutableStateOf("") }
-    var selected by remember { mutableStateOf(setOf("08:00")) }
+    val editing = state.editingMedicine
+
+    var name by remember(editing?.id) { mutableStateOf(editing?.name ?: "") }
+    var dose by remember(editing?.id) {
+        mutableStateOf(editing?.dose?.takeUnless { it == "—" } ?: "")
+    }
+    var condition by remember(editing?.id) {
+        mutableStateOf(editing?.condition?.takeUnless { it == "General" } ?: "")
+    }
+    var selected by remember(editing?.id) {
+        mutableStateOf(editing?.times?.toSet() ?: setOf("08:00"))
+    }
     var custom by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
     var closing by remember { mutableStateOf(false) }
@@ -88,7 +96,7 @@ fun AddMedicineSheet(state: AppState) {
                 .padding(bottom = 36.dp)
         ) {
             Text(
-                text = s.addMedicine,
+                text = if (editing == null) s.addMedicine else s.editMedicine,
                 style = MaterialTheme.typography.headlineSmall
             )
             Spacer(Modifier.height(16.dp))
@@ -213,7 +221,13 @@ fun AddMedicineSheet(state: AppState) {
                 ) { Text(s.cancel) }
                 Button(
                     onClick = {
-                        state.addMedicine(name, dose, condition, selected.toList())
+                        if (editing == null) {
+                            state.addMedicine(name, dose, condition, selected.toList())
+                        } else {
+                            state.updateMedicine(
+                                editing.id, name, dose, condition, selected.toList()
+                            )
+                        }
                         close()
                     },
                     enabled = canSave && !closing,

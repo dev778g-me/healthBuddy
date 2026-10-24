@@ -284,16 +284,16 @@ Each card: ~80 words, reading level ~grade 6, one line of "this is education, no
 
 | ID | Requirement | Acceptance |
 |---|---|---|
-| FR-1 | Onboarding: language choice, display name, optional condition selection | ≤ 3 screens, skippable, persisted |
+| FR-1 | Onboarding: language choice and display name — deliberately two questions | One screen, persisted |
 | FR-2 | Dashboard shows today's doses with time and status | Correct grouping: due now / later / done |
 | FR-3 | Dose can be logged as Taken, Missed, or Not sure | Status persists; history updates |
 | FR-4 | Logging Missed opens the barrier question | 9 options, one tap each, dismissible |
 | FR-5 | Selecting a barrier shows the support card | Copy matches §10.2 exactly; safety note visible when defined |
-| FR-6 | Support card action button does something visible | Adjust → time picker; Facility → list; Call → dial intent; Read → sheet |
+| FR-6 | Support card action does something visible | Adjust → +15/30/60 chips; Facility → labelled care list + 104 call; Call → dial intent; Read → labelled checklist |
 | FR-7 | Follow-up asks "Was this helpful?" with 3 answers | Answer stored on the log entry |
-| FR-8 | Unanswered "Was this helpful?" is recordable later | From History |
-| FR-9 | Medicine CRUD: add, edit, toggle active | Add flow ≤ 4 inputs |
-| FR-10 | History timeline of last 30 days | Shows status + barrier + helpfulness |
+| FR-8 | Unanswered "Was this helpful?" is recordable later | Yes/Not sure/No chips on the History entry |
+| FR-9 | Medicine CRUD: add, edit, toggle active | Add flow ≤ 4 inputs; tap a row to edit it in the same sheet |
+| FR-10 | History timeline of last 30 days | Windowed to today − 29 d; shows status + barrier + helpfulness |
 | FR-11 | Learn list + detail | 6 cards, offline |
 | FR-12 | Why it matters screen | Loop diagram, research question, safety statement |
 | FR-13 | Demo scenario button | Replays §7 flow deterministically |
@@ -370,6 +370,7 @@ app/src/main/res/
 └── xml/                          backup / data-extraction rules
 
 branding/                         icon vectors, 512 px store art and notes (source only, not packaged)
+docs/                             one-slide.svg + one-slide.md (architecture, loop, presenter notes)
 ```
 
 ### 12.3 Data model
@@ -431,7 +432,7 @@ Sizes: **S** ≈ <30 min, **M** ≈ 1–2 h, **L** ≈ 3–4 h.
 ### Phase 3 — Supporting screens
 
 - [x] `OnboardingScreen` — language, name **(M)**
-- [x] `MedicinesScreen` + add-medicine **bottom sheet** (no route) — row removal is a swipe action, not an always-visible delete icon **(L)**
+- [x] `MedicinesScreen` + add/edit-medicine **bottom sheet** (no route) — tap a row to edit, swipe left to remove; no always-visible delete icon **(L)**
 - [x] `HistoryScreen` — day-grouped timeline with barrier chips **(M)**
 - [x] `LearnScreen` + detail **(M)**
 - [x] `WhyItMattersScreen` — loop drawn in Compose **(M)**
@@ -443,6 +444,7 @@ Sizes: **S** ≈ <30 min, **M** ≈ 1–2 h, **L** ≈ 3–4 h.
 - [x] **Demo scenario** button — resets to Ravi state **and** opens the missed-dose flow at the barrier question **(M)**
 - [x] HI + MR + OR strings for all UI chrome **(L)**
 - [x] Empty states (no medicines, no history, no logs today) **(S)**
+- [x] Answer a skipped "Was this helpful?" from the History entry **(S)**
 - [x] Dark mode **(M)**
 - [x] Launcher icon — adaptive foreground/background + Android 13 monochrome (themed) layer; `minSdk 31` so no legacy density bitmaps; system splash reuses the icon **(done)**
 - [ ] Rehearse §7 three times, time it **(S)** — presenter's job
@@ -458,7 +460,7 @@ Sizes: **S** ≈ <30 min, **M** ≈ 1–2 h, **L** ≈ 3–4 h.
 
 - [x] `README.md` — what it does, how to run, the research question, safety model **(M)**
 - [ ] Screenshots for the report/poster **(S)** — needs a running build
-- [ ] One-slide architecture + loop diagram export **(S)**
+- [x] One-slide architecture + loop diagram export — `docs/one-slide.svg` (16:9) plus text/notes in `docs/one-slide.md` **(done)**
 
 ---
 

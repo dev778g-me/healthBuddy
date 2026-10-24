@@ -93,6 +93,26 @@ class AppState(private val store: Store) {
         persist()
     }
 
+    fun updateMedicine(
+        id: String,
+        name: String,
+        dose: String,
+        condition: String,
+        times: List<String>
+    ) {
+        val clean = times.filter { it.isNotBlank() }.sorted()
+        if (name.isBlank() || clean.isEmpty()) return
+        medicines = medicines.map {
+            if (it.id != id) it else it.copy(
+                name = name.trim(),
+                dose = dose.ifBlank { "—" },
+                condition = condition.ifBlank { "General" },
+                times = clean
+            )
+        }
+        persist()
+    }
+
     fun removeMedicine(id: String) {
         medicines = medicines.filterNot { it.id == id }
         logs = logs.filterNot { it.medicineId == id }
@@ -139,17 +159,28 @@ class AppState(private val store: Store) {
         persist()
     }
 
-    // ---- add-medicine sheet (UI-only, never persisted) ---------------------
+    // ---- add / edit-medicine sheet (UI-only, never persisted) --------------
 
     var addMedicineSheet by mutableStateOf(false)
         private set
 
+    /** Non-null while the sheet is editing an existing medicine. */
+    var editingMedicine by mutableStateOf<Medicine?>(null)
+        private set
+
     fun openAddMedicineSheet() {
+        editingMedicine = null
+        addMedicineSheet = true
+    }
+
+    fun openEditMedicine(medicine: Medicine) {
+        editingMedicine = medicine
         addMedicineSheet = true
     }
 
     fun closeAddMedicineSheet() {
         addMedicineSheet = false
+        editingMedicine = null
     }
 
     // ---- derived views ----------------------------------------------------
@@ -241,6 +272,7 @@ class AppState(private val store: Store) {
         appointments = Seed.appointments()
         logs = Seed.demoLogs()
         addMedicineSheet = false
+        editingMedicine = null
         onboarded = true
         resetTab()
         pendingDemoFlow = true
@@ -269,6 +301,7 @@ class AppState(private val store: Store) {
         logs = fresh.logs
         appointments = fresh.appointments
         addMedicineSheet = false
+        editingMedicine = null
         resetTab()
         store.save(fresh)
     }

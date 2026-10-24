@@ -57,6 +57,7 @@ data class Strings(
 
     val medicinesTitle: String,
     val addMedicine: String,
+    val editMedicine: String,
     val noMedicines: String,
     val noMedicinesBody: String,
     val medicineName: String,
@@ -169,6 +170,7 @@ val EnStrings = Strings(
     close = "Close",
     medicinesTitle = "My medicines",
     addMedicine = "Add medicine",
+    editMedicine = "Edit medicine",
     noMedicines = "No medicines yet",
     noMedicinesBody = "Add your prescribed medicine to start getting reminders.",
     medicineName = "Medicine name",
@@ -236,7 +238,7 @@ val EnStrings = Strings(
     summaryBarriers = "What got in the way",
     summaryMedicines = "Medicines",
     summaryFooter = "Counts only — no medical advice. Shared from HealthBuddy.",
-    swipeToRemoveHint = "Swipe a medicine left to remove it.",
+    swipeToRemoveHint = "Tap a medicine to edit it. Swipe left to remove it.",
     addTime = "Add"
 )
 
@@ -280,6 +282,7 @@ val HiStrings = Strings(
     close = "बंद करें",
     medicinesTitle = "मेरी दवाइयाँ",
     addMedicine = "दवा जोड़ें",
+    editMedicine = "दवा बदलें",
     noMedicines = "अभी कोई दवा नहीं",
     noMedicinesBody = "रिमाइंडर शुरू करने के लिए अपनी दवा जोड़ें।",
     medicineName = "दवा का नाम",
@@ -345,7 +348,7 @@ val HiStrings = Strings(
     summaryBarriers = "किस बात ने रोका",
     summaryMedicines = "दवाइयाँ",
     summaryFooter = "केवल गिनती — कोई चिकित्सकीय सलाह नहीं। HealthBuddy से साझा किया गया।",
-    swipeToRemoveHint = "हटाने के लिए दवा को बाईं ओर स्वाइप करें।",
+    swipeToRemoveHint = "दवा बदलने के लिए टैप करें। हटाने के लिए बाईं ओर स्वाइप करें।",
     addTime = "जोड़ें"
 )
 
@@ -389,6 +392,7 @@ val MrStrings = Strings(
     close = "बंद करा",
     medicinesTitle = "माझी औषधे",
     addMedicine = "औषध जोडा",
+    editMedicine = "औषध बदला",
     noMedicines = "अजून औषध नाही",
     noMedicinesBody = "आठवणी सुरू करण्यासाठी तुमचे औषध जोडा.",
     medicineName = "औषधाचे नाव",
@@ -454,7 +458,7 @@ val MrStrings = Strings(
     summaryBarriers = "कशामुळे अडले",
     summaryMedicines = "औषधे",
     summaryFooter = "फक्त मोजणी — कोणताही वैद्यकीय सल्ला नाही. HealthBuddy वरून शेअर केले.",
-    swipeToRemoveHint = "काढण्यासाठी औषध डावीकडे स्वाइप करा.",
+    swipeToRemoveHint = "औषध बदलण्यासाठी टॅप करा. काढण्यासाठी डावीकडे स्वाइप करा.",
     addTime = "जोडा"
 )
 
@@ -498,6 +502,7 @@ val OrStrings = Strings(
     close = "ବନ୍ଦ କରନ୍ତୁ",
     medicinesTitle = "ମୋର ଔଷଧ",
     addMedicine = "ଔଷଧ ଯୋଡ଼ନ୍ତୁ",
+    editMedicine = "ଔଷଧ ସମ୍ପାଦନ କରନ୍ତୁ",
     noMedicines = "ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଔଷଧ ନାହିଁ",
     noMedicinesBody = "ରିମାଇଣ୍ଡର ପାଇବା ପାଇଁ ଆପଣଙ୍କ ଡାକ୍ତରଙ୍କ ଲେଖା ଔଷଧ ଯୋଡ଼ନ୍ତୁ।",
     medicineName = "ଔଷଧର ନାମ",
@@ -561,7 +566,7 @@ val OrStrings = Strings(
     summaryBarriers = "କ'ଣ ବାଧା ହେଲା",
     summaryMedicines = "ଔଷଧ",
     summaryFooter = "କେବଳ ଗଣନା — କୌଣସି ଚିକିତ୍ସା ପରାମର୍ଶ ନାହିଁ। HealthBuddy ରୁ ସେୟାର୍ କରାଯାଇଛି।",
-    swipeToRemoveHint = "ଔଷଧ ହଟାଇବା ପାଇଁ ବାମକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ।",
+    swipeToRemoveHint = "ଔଷଧ ସମ୍ପାଦନ କରିବା ପାଇଁ ଟ୍ୟାପ୍ କରନ୍ତୁ। ହଟାଇବା ପାଇଁ ବାମକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ।",
     addTime = "ଯୋଡ଼ନ୍ତୁ"
 )
 

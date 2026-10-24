@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +44,7 @@ import com.composables.icons.lucide.Trash2
 import org.dev.healthbuddy.data.AppState
 import org.dev.healthbuddy.domain.Barrier
 import org.dev.healthbuddy.domain.BarrierCatalog
+import org.dev.healthbuddy.domain.Helpful
 import org.dev.healthbuddy.domain.Lang
 import org.dev.healthbuddy.domain.Medicine
 import org.dev.healthbuddy.ui.Fmt
@@ -103,7 +105,8 @@ fun MedicinesScreen(state: AppState) {
                                 med = med,
                                 shape = shape,
                                 timesText = med.times.joinToString(" · ") { Fmt.time(it) },
-                                onToggle = { state.toggleMedicine(med.id) }
+                                onToggle = { state.toggleMedicine(med.id) },
+                                onEdit = { state.openEditMedicine(med) }
                             )
                         }
                     }
@@ -167,9 +170,10 @@ private fun MedicineRow(
     med: Medicine,
     shape: Shape,
     timesText: String,
-    onToggle: () -> Unit
+    onToggle: () -> Unit,
+    onEdit: () -> Unit
 ) {
-    HbCard(shape = shape) {
+    HbCard(shape = shape, onClick = onEdit) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = med.name, style = MaterialTheme.typography.titleMedium)
@@ -197,7 +201,10 @@ fun HistoryScreen(
 ) {
     val s = LocalStrings.current
     val context = LocalContext.current
-    val grouped = state.logsDesc().groupBy { it.date }
+    val since = java.time.LocalDate.now().minusDays(29).toString()
+    val grouped = state.logsDesc()
+        .filter { it.date >= since }
+        .groupBy { it.date }
     val weekly = state.barrierCountsThisWeek()
 
     if (grouped.isEmpty()) {
@@ -302,6 +309,29 @@ fun HistoryScreen(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    }
+                    if (log.barrier != null && log.helpful == null) {
+                        Spacer(Modifier.height(10.dp))
+                        Text(
+                            text = s.wasHelpful,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(6.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            AssistChip(
+                                onClick = { state.setHelpful(log.id, Helpful.YES) },
+                                label = { Text(s.yes) }
+                            )
+                            AssistChip(
+                                onClick = { state.setHelpful(log.id, Helpful.NOT_SURE) },
+                                label = { Text(s.somewhat) }
+                            )
+                            AssistChip(
+                                onClick = { state.setHelpful(log.id, Helpful.NO) },
+                                label = { Text(s.no) }
+                            )
+                        }
                     }
                     if (needsReason) {
                         Spacer(Modifier.height(6.dp))
