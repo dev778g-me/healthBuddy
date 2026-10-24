@@ -59,24 +59,22 @@ fun WhyMattersScreen() {
         )
         Spacer(Modifier.height(20.dp))
 
-        LoopStep(number = "1", title = "Remind", body = "A reminder for the dose or the visit.")
-        LoopStep(number = "2", title = "Identify", body = "One tap: why was it difficult today?")
-        LoopStep(number = "3", title = "Support", body = "A reviewed next step that fits that barrier.")
-        LoopStep(number = "4", title = "Follow up", body = "Was it useful? If not, what next?")
+        LoopStep(number = "1", title = s.loopRemindTitle, body = s.loopRemindBody)
+        LoopStep(number = "2", title = s.loopIdentifyTitle, body = s.loopIdentifyBody)
+        LoopStep(number = "3", title = s.loopSupportTitle, body = s.loopSupportBody)
+        LoopStep(number = "4", title = s.loopFollowUpTitle, body = s.loopFollowUpBody)
 
         Spacer(Modifier.height(24.dp))
 
         HbCard(containerColor = MaterialTheme.colorScheme.primaryContainer) {
             Text(
-                text = "The research question",
+                text = s.researchTitle,
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text = "Can a barrier-aware mobile application provide more relevant and " +
-                    "useful support for medication adherence and health-seeking behaviour " +
-                    "than a reminder-only approach?",
+                text = s.researchBody,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
@@ -86,14 +84,12 @@ fun WhyMattersScreen() {
 
         HbCard(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh) {
             Text(
-                text = "What this app will never do",
+                text = s.neverTitle,
                 style = MaterialTheme.typography.titleSmall
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text = "It will not tell you to stop, start or change a medicine. " +
-                    "It will not diagnose you. Every suggestion ends in a route to a " +
-                    "real health professional.",
+                text = s.neverBody,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

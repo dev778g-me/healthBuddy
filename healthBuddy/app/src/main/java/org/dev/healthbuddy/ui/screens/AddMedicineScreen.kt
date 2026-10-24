@@ -139,7 +139,7 @@ fun AddMedicineScreen(
             if (error != null) {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "Use 24-hour format, e.g. 20:30",
+                    text = s.timeFormatHint,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error
                 )

@@ -106,7 +106,7 @@ Everything else in the app exists to support this loop.
 | 0:40 | Tap **Find a public facility** → tap **Was this helpful? Yes** |
 | 0:48 | Dashboard updates: *barrier identified: cost*. "Now it knows something a reminder app never could." |
 | 0:55 | Open **Why this matters** → the loop diagram + research question. |
-| 1:05 | **Demo scenario** button → "and I can replay that in one tap if you'd like." |
+| 1:05 | **Demo scenario** → resets and reopens the missed dose at the barrier question. "One tap, back to the start." |
 
 ---
 
@@ -312,8 +312,10 @@ Each card: ~80 words, reading level ~grade 6, one line of "this is education, no
 ### 11.3 Localization policy
 
 - **UI chrome** (buttons, labels, nav, onboarding, question options): EN / HI / MR.
-- **Support card bodies and education content:** English only in v1.
-  - Rationale: machine-translating clinical copy without review violates §9. Better to ship one reviewed language than three unreviewed ones.
+- **Support card bodies and education content:** EN + HI, both reviewed.
+  - Marathi falls back to English for that content. Machine-translating clinical copy
+    without review violates §9, so unreviewed Marathi clinical copy is deliberately not
+    shipped — one reviewed language beats three unreviewed ones.
   - Say this out loud if asked — it is a *better* answer than "we ran it through Google Translate".
 
 ---
