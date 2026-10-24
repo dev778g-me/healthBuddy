@@ -15,9 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +24,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.composables.icons.lucide.History
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Pill
+import com.composables.icons.lucide.Trash2
 import org.dev.healthbuddy.data.AppState
 import org.dev.healthbuddy.domain.Barrier
 import org.dev.healthbuddy.domain.BarrierCatalog
@@ -43,7 +44,7 @@ fun MedicinesScreen(state: AppState) {
 
     if (state.medicines.isEmpty()) {
         EmptyState(
-            icon = Icons.Filled.List,
+            icon = Lucide.Pill,
             title = s.noMedicines,
             body = s.noMedicinesBody,
             modifier = Modifier
@@ -99,7 +100,7 @@ private fun MedicineRow(
             Spacer(Modifier.width(4.dp))
             IconButton(onClick = onDelete) {
                 Icon(
-                    imageVector = Icons.Filled.Delete,
+                    imageVector = Lucide.Trash2,
                     contentDescription = s.remove,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -119,7 +120,7 @@ fun HistoryScreen(
 
     if (grouped.isEmpty()) {
         EmptyState(
-            icon = Icons.Filled.List,
+            icon = Lucide.History,
             title = s.noHistory,
             body = s.noHistoryBody,
             modifier = Modifier

@@ -20,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.composables.icons.lucide.CalendarDays
+import com.composables.icons.lucide.Lucide
 import org.dev.healthbuddy.data.AppState
 import org.dev.healthbuddy.domain.DoseSlot
 import org.dev.healthbuddy.domain.DoseStatus
@@ -31,9 +33,6 @@ import org.dev.healthbuddy.ui.components.StatusPill
 import org.dev.healthbuddy.ui.components.statusColors
 import org.dev.healthbuddy.ui.components.statusLabel
 import org.dev.healthbuddy.ui.i18n.LocalStrings
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Warning
 
 @Composable
 fun DashboardScreen(
@@ -83,7 +82,7 @@ fun DashboardScreen(
         if (slots.isEmpty()) {
             item {
                 EmptyState(
-                    icon = Icons.Filled.DateRange,
+                    icon = Lucide.CalendarDays,
                     title = s.nothingToday,
                     body = s.nothingTodayBody
                 )

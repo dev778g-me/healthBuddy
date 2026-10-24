@@ -332,7 +332,7 @@ Each card: ~80 words, reading level ~grade 6, one line of "this is education, no
 | Persistence | One JSON blob in `SharedPreferences`, built with `org.json` | Zero dependencies. No Room/KSP/kapt — critical because AGP 9 uses built-in Kotlin and annotation processors are friction |
 | Time | `java.time` (minSdk 31) | No kotlinx-datetime needed |
 | State | `mutableStateOf` inside one `AppState` holder, kept by an `AndroidViewModel` | Survives rotation/config changes. No DI library |
-| Icons | `material-icons-core` (pinned explicitly) | `material-icons-extended` is deprecated in recent BOMs and materially bloats the APK |
+| Icons | **Lucide** (`com.composables:icons-lucide` 1.1.0) | One consistent 24 px outline family instead of mixed Material glyphs. The `thelacspace:lucide-compose` artifact was evaluated and rejected: its 1.16.0 AAR ships only four compiled icons |
 | Notifications | **Not in v1** | The demo must not depend on them |
 
 ### 12.2 Project structure

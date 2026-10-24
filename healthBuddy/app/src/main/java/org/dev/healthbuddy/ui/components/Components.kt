@@ -14,9 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -29,6 +26,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.composables.icons.lucide.ChevronRight
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.TriangleAlert
 
 @Composable
 fun SectionTitle(
@@ -101,7 +101,7 @@ fun SafetyNote(text: String, modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.Top
     ) {
         Icon(
-            imageVector = Icons.Filled.Warning,
+            imageVector = Lucide.TriangleAlert,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onTertiaryContainer,
             modifier = Modifier.size(18.dp)
@@ -181,7 +181,7 @@ fun OptionRow(
                 modifier = Modifier.weight(1f)
             )
             Icon(
-                imageVector = Icons.Filled.KeyboardArrowRight,
+                imageVector = Lucide.ChevronRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )

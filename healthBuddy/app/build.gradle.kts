@@ -42,8 +42,8 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     // Material 3 Expressive (stable in 1.4.0)
     implementation(libs.androidx.compose.material3.expressive)
-    // Material3 1.4 does not guarantee icons transitively — pin the core set.
-    implementation(libs.androidx.compose.material.icons.core)
+    // Lucide outline icons — the only icon family used in the UI.
+    implementation(libs.composables.icons.lucide)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)

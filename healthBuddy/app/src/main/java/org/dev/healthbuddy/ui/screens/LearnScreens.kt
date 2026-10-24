@@ -18,13 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.background
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,6 +26,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.composables.icons.lucide.CalendarDays
+import com.composables.icons.lucide.Heart
+import com.composables.icons.lucide.Info
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.ShoppingCart
+import com.composables.icons.lucide.TriangleAlert
+import com.composables.icons.lucide.User
 import org.dev.healthbuddy.data.AppState
 import org.dev.healthbuddy.domain.EduCard
 import org.dev.healthbuddy.domain.EduIcon
@@ -41,12 +41,12 @@ import org.dev.healthbuddy.ui.components.HbCard
 import org.dev.healthbuddy.ui.i18n.LocalStrings
 
 private fun iconFor(icon: EduIcon): ImageVector = when (icon) {
-    EduIcon.HEART -> Icons.Filled.Favorite
-    EduIcon.COST -> Icons.Filled.ShoppingCart
-    EduIcon.SIDE_EFFECT -> Icons.Filled.Info
-    EduIcon.CLOCK -> Icons.Filled.DateRange
-    EduIcon.WARNING -> Icons.Filled.Warning
-    EduIcon.MIND -> Icons.Filled.Person
+    EduIcon.HEART -> Lucide.Heart
+    EduIcon.COST -> Lucide.ShoppingCart
+    EduIcon.SIDE_EFFECT -> Lucide.Info
+    EduIcon.CLOCK -> Lucide.CalendarDays
+    EduIcon.WARNING -> Lucide.TriangleAlert
+    EduIcon.MIND -> Lucide.User
 }
 
 @Composable

@@ -13,6 +13,7 @@ composeBom = "2026.09.00"
 # (instead of only using the BOM) so the Expressive surface can't drift.
 material3Expressive = "1.5.0-beta02"
 navigationCompose = "2.10.2"
+lucideIcons = "1.1.0"
 kotlinxSerializationJson = "1.11.0"
 
 [libraries]
@@ -31,7 +32,7 @@ androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-material3-expressive = { group = "androidx.compose.material3", name = "material3", version.ref = "material3Expressive" }
-androidx-compose-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
+composables-icons-lucide = { group = "com.composables", name = "icons-lucide", version.ref = "lucideIcons" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 

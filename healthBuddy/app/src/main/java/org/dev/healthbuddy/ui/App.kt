@@ -13,14 +13,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -51,6 +43,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.AppTheme
+import com.composables.icons.lucide.ArrowLeft
+import com.composables.icons.lucide.BookOpen
+import com.composables.icons.lucide.History
+import com.composables.icons.lucide.House
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Pill
+import com.composables.icons.lucide.Plus
+import com.composables.icons.lucide.Settings
 import org.dev.healthbuddy.data.AppState
 import org.dev.healthbuddy.domain.DoseSlot
 import org.dev.healthbuddy.domain.Tab
@@ -179,7 +179,7 @@ private fun MainShell(state: AppState) {
                     if (!isMain) {
                         IconButton(onClick = { nav.navigateUp() }) {
                             Icon(
-                                imageVector = Icons.Filled.ArrowBack,
+                                imageVector = Lucide.ArrowLeft,
                                 contentDescription = s.back
                             )
                         }
@@ -189,7 +189,7 @@ private fun MainShell(state: AppState) {
                     if (isMain) {
                         IconButton(onClick = { nav.navigate(SettingsRoute) }) {
                             Icon(
-                                imageVector = Icons.Filled.Settings,
+                                imageVector = Lucide.Settings,
                                 contentDescription = s.settingsTitle
                             )
                         }
@@ -208,25 +208,25 @@ private fun MainShell(state: AppState) {
                     NavigationBarItem(
                         selected = state.tab == Tab.TODAY,
                         onClick = { state.selectTab(Tab.TODAY) },
-                        icon = { Icon(Icons.Filled.Home, contentDescription = null) },
+                        icon = { Icon(Lucide.House, contentDescription = null) },
                         label = { Text(s.tabToday) }
                     )
                     NavigationBarItem(
                         selected = state.tab == Tab.MEDICINES,
                         onClick = { state.selectTab(Tab.MEDICINES) },
-                        icon = { Icon(Icons.Filled.List, contentDescription = null) },
+                        icon = { Icon(Lucide.Pill, contentDescription = null) },
                         label = { Text(s.tabMedicines) }
                     )
                     NavigationBarItem(
                         selected = state.tab == Tab.HISTORY,
                         onClick = { state.selectTab(Tab.HISTORY) },
-                        icon = { Icon(Icons.Filled.DateRange, contentDescription = null) },
+                        icon = { Icon(Lucide.History, contentDescription = null) },
                         label = { Text(s.tabHistory) }
                     )
                     NavigationBarItem(
                         selected = state.tab == Tab.LEARN,
                         onClick = { state.selectTab(Tab.LEARN) },
-                        icon = { Icon(Icons.Filled.Info, contentDescription = null) },
+                        icon = { Icon(Lucide.BookOpen, contentDescription = null) },
                         label = { Text(s.tabLearn) }
                     )
                 }
@@ -239,7 +239,7 @@ private fun MainShell(state: AppState) {
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ) {
-                    Icon(Icons.Filled.Add, contentDescription = s.addMedicine)
+                    Icon(Lucide.Plus, contentDescription = s.addMedicine)
                 }
             }
         }
