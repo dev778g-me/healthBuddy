@@ -126,6 +126,14 @@ private fun MainShell(state: AppState) {
         }
     }
 
+    // A tapped dose notification always surfaces Today, whatever was open.
+    LaunchedEffect(state.pendingOpenToday) {
+        if (state.pendingOpenToday) {
+            state.consumeOpenToday()
+            nav.popBackStack()
+        }
+    }
+
     // The sheet is its own window, so the confirmation is shown once it closes.
     LaunchedEffect(flowSlot) {
         if (flowSlot == null) {

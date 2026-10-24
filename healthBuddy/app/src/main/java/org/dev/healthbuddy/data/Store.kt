@@ -21,7 +21,9 @@ data class Snapshot(
     val privateMode: Boolean,
     val medicines: List<Medicine>,
     val logs: List<DoseLog>,
-    val appointments: List<Appointment>
+    val appointments: List<Appointment>,
+    /** Local dose reminders are on unless the user opts out. */
+    val remindersEnabled: Boolean = true
 )
 
 /**
@@ -64,6 +66,7 @@ class Store(context: Context) {
         put("lang", s.lang.name)
         put("themeMode", s.themeMode.name)
         put("privateMode", s.privateMode)
+        put("remindersEnabled", s.remindersEnabled)
 
         put("medicines", JSONArray().apply {
             s.medicines.forEach { m ->
@@ -117,6 +120,7 @@ class Store(context: Context) {
         themeMode = runCatching { ThemeMode.valueOf(o.optString("themeMode", "SYSTEM")) }
             .getOrDefault(ThemeMode.SYSTEM),
         privateMode = o.optBoolean("privateMode", false),
+        remindersEnabled = o.optBoolean("remindersEnabled", true),
         medicines = o.optJSONArray("medicines").mapObjects { m ->
             Medicine(
                 id = m.optString("id"),

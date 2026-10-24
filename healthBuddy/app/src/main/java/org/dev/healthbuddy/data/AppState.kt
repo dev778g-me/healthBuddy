@@ -15,11 +15,15 @@ import org.dev.healthbuddy.domain.Seed
 import org.dev.healthbuddy.domain.Tab
 import org.dev.healthbuddy.domain.ThemeMode
 import org.dev.healthbuddy.domain.doseId
+import org.dev.healthbuddy.notifications.ReminderScheduler
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-class AppState(private val store: Store) {
+class AppState(
+    private val store: Store,
+    private val reminders: ReminderScheduler
+) {
 
     private var snapshot: Snapshot = store.load()
 
@@ -32,6 +36,8 @@ class AppState(private val store: Store) {
     var themeMode by mutableStateOf(snapshot.themeMode)
         private set
     var privateMode by mutableStateOf(snapshot.privateMode)
+        private set
+    var remindersEnabled by mutableStateOf(snapshot.remindersEnabled)
         private set
     var medicines by mutableStateOf(snapshot.medicines)
         private set
@@ -49,15 +55,32 @@ class AppState(private val store: Store) {
         if (tab != next) tab = next
     }
 
+    /**
+     * Tapping a reminder should land on Today even if Settings (or a Learn
+     * detail) was the last screen. MainShell consumes this and pops.
+     */
+    var pendingOpenToday by mutableStateOf(false)
+        private set
+
+    fun openTodayFromNotification() {
+        tab = Tab.TODAY
+        pendingOpenToday = true
+    }
+
+    fun consumeOpenToday() {
+        pendingOpenToday = false
+    }
+
     private fun resetTab() {
         tab = Tab.TODAY
     }
 
     // ---- onboarding / settings -------------------------------------------
 
-    fun completeOnboarding(displayName: String, chosen: Lang) {
+    fun completeOnboarding(displayName: String, chosen: Lang, remindersWanted: Boolean = true) {
         name = displayName.trim()
         lang = chosen
+        remindersEnabled = remindersWanted
         onboarded = true
         persist()
     }
@@ -75,6 +98,22 @@ class AppState(private val store: Store) {
     fun changePrivateMode(enabled: Boolean) {
         privateMode = enabled
         persist()
+    }
+
+    /** Settings toggle. Turning it back on after a permission grant re-arms alarms. */
+    fun changeRemindersEnabled(enabled: Boolean) {
+        if (remindersEnabled == enabled) {
+            syncReminders()
+            return
+        }
+        remindersEnabled = enabled
+        if (!enabled) reminders.cancelAllNotifications()
+        persist()
+    }
+
+    /** Re-check permissions and rebuild the local alarm set. */
+    fun syncReminders() {
+        reminders.sync(medicines, onboarded && remindersEnabled)
     }
 
     // ---- medicines --------------------------------------------------------
@@ -150,6 +189,10 @@ class AppState(private val store: Store) {
             loggedAt = System.currentTimeMillis()
         )
         logs = logs.filterNot { it.id == entry.id } + entry
+        // Logging from the app dismisses today's reminder for this dose.
+        if (slot.date == today()) {
+            reminders.cancelNotification(slot.medicine.id, slot.baseTime)
+        }
         persist()
     }
 
@@ -310,6 +353,7 @@ class AppState(private val store: Store) {
         lang = Lang.EN
         themeMode = ThemeMode.SYSTEM
         privateMode = false
+        remindersEnabled = fresh.remindersEnabled
         medicines = fresh.medicines
         logs = fresh.logs
         appointments = fresh.appointments
@@ -317,6 +361,8 @@ class AppState(private val store: Store) {
         editingMedicine = null
         resetTab()
         store.save(fresh)
+        reminders.cancelAll()
+        reminders.cancelAllNotifications()
     }
 
     // ---- internals --------------------------------------------------------
@@ -336,10 +382,14 @@ class AppState(private val store: Store) {
             privateMode = privateMode,
             medicines = medicines,
             logs = logs,
-            appointments = appointments
+            appointments = appointments,
+            remindersEnabled = remindersEnabled
         )
         snapshot = s
         store.save(s)
+        // One place to keep the alarm set honest: every mutation already calls
+        // persist(), so no edit path can forget to reschedule.
+        reminders.sync(medicines, onboarded && remindersEnabled)
     }
 
     private fun today(): String = LocalDate.now().toString()
