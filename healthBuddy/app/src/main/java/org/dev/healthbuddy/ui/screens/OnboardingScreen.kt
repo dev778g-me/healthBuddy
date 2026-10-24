@@ -124,13 +124,25 @@ fun OnboardingScreen(state: AppState) {
                 ) {
                     Text("हिंदी")
                 }
-
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 ToggleButton(
                     checked = state.lang == Lang.MR,
                     modifier = Modifier.weight(1f),
                     onCheckedChange = { state.changeLanguage(Lang.MR) }
                 ) {
                     Text("मराठी")
+                }
+
+                ToggleButton(
+                    checked = state.lang == Lang.OR,
+                    modifier = Modifier.weight(1f),
+                    onCheckedChange = { state.changeLanguage(Lang.OR) }
+                ) {
+                    Text("ଓଡ଼ିଆ")
                 }
             }
 

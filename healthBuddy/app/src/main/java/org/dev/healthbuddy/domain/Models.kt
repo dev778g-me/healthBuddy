@@ -17,7 +17,7 @@ enum class DoseStatus { PENDING, TAKEN, MISSED, UNSURE }
 
 enum class Helpful { YES, NOT_SURE, NO }
 
-enum class Lang { EN, HI, MR }
+enum class Lang { EN, HI, MR, OR }
 
 /** System-following by default; the override exists because demo phones lie. */
 enum class ThemeMode { SYSTEM, LIGHT, DARK }

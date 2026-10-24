@@ -117,7 +117,7 @@ Everything else in the app exists to support this loop.
 - 6 screens: Onboarding, Dashboard, Medicines (+ Add), History, Learn, Why it matters
 - The barrier flow as 3 bottom sheets
 - Local persistence
-- 3 languages: English, हिंदी, मराठी (UI strings)
+- 4 languages: English, हिंदी, मराठी, ଓଡ଼ିଆ (UI strings)
 - Demo scenario mode
 - Light + dark theme
 - Bilingual support content? **No** — support cards in English for v1 (see §11.3)
@@ -297,7 +297,7 @@ Each card: ~80 words, reading level ~grade 6, one line of "this is education, no
 | FR-11 | Learn list + detail | 6 cards, offline |
 | FR-12 | Why it matters screen | Loop diagram, research question, safety statement |
 | FR-13 | Demo scenario button | Replays §7 flow deterministically |
-| FR-14 | Language switchable at runtime | EN / HI / MR, no restart needed |
+| FR-14 | Language switchable at runtime | EN / HI / MR / OR, no restart needed |
 | FR-15 | Data persists across restart | JSON blob reload |
 | FR-16 | Reset all data | In settings/menu, with confirm |
 
@@ -311,11 +311,13 @@ Each card: ~80 words, reading level ~grade 6, one line of "this is education, no
 
 ### 11.3 Localization policy
 
-- **UI chrome** (buttons, labels, nav, onboarding, question options): EN / HI / MR.
-- **Support card bodies and education content:** EN + HI, both reviewed.
-  - Marathi falls back to English for that content. Machine-translating clinical copy
-    without review violates §9, so unreviewed Marathi clinical copy is deliberately not
-    shipped — one reviewed language beats three unreviewed ones.
+- **UI chrome** (buttons, labels, nav, onboarding, question options): EN / HI / MR / OR.
+- **Support card bodies, education content and tips:** EN + HI, both reviewed.
+  - Marathi and Odia fall back to English for that content. Machine-translating clinical
+    copy without review violates §9, so unreviewed clinical copy in those languages is
+    deliberately not shipped — one reviewed language beats four unreviewed ones.
+  - Odia chrome is UI text only and has not had a native-speaker review; a native pass is
+    recommended before showing it to Odia-speaking users.
   - Say this out loud if asked — it is a *better* answer than "we ran it through Google Translate".
 
 ---
@@ -354,7 +356,7 @@ app/src/main/java/org/dev/healthbuddy/
     ├── nav/Routes.kt             @Serializable destinations (Main, Settings,
     │                             LearnDetail, WhyMatters)
     ├── Format.kt                 time / relative-date formatting
-    ├── i18n/Strings.kt           EN / HI / MR chrome + LocalStrings
+    ├── i18n/Strings.kt           EN / HI / MR / OR chrome + LocalStrings
     ├── theme/                    Color.kt, Type.kt (expressive scale), Theme.kt
     ├── components/               HbCard, StatusPill, SafetyNote, OptionRow, EmptyState…
     ├── screens/                  Onboarding, Dashboard, Medicines (+ AddMedicineSheet),
@@ -376,7 +378,7 @@ branding/                         icon vectors, 512 px store art and notes (sour
 enum class Barrier { FORGOT, COST, SIDE_EFFECTS, CONFUSED, STIGMA, ACCESS, DISTRESS, OTHER, PREFER_NOT_TO_SAY }
 enum class DoseStatus { PENDING, TAKEN, MISSED, UNSURE }
 enum class Helpful { YES, NOT_SURE, NO }
-enum class Lang { EN, HI, MR }
+enum class Lang { EN, HI, MR, OR }
 
 data class Medicine(id, name, dose, condition, times: List<String>, active: Boolean, reminderOffsetMinutes: Int)
 data class DoseLog(id, medicineId, date, time, status, barrier: Barrier?, helpful: Helpful?, loggedAt: Long)
@@ -439,7 +441,7 @@ Sizes: **S** ≈ <30 min, **M** ≈ 1–2 h, **L** ≈ 3–4 h.
 
 - [x] Persistence round-trip — `Store` writes a versioned JSON snapshot on every mutation **(S)**
 - [x] **Demo scenario** button — resets to Ravi state **and** opens the missed-dose flow at the barrier question **(M)**
-- [x] HI + MR strings for all UI chrome **(L)**
+- [x] HI + MR + OR strings for all UI chrome **(L)**
 - [x] Empty states (no medicines, no history, no logs today) **(S)**
 - [x] Dark mode **(M)**
 - [x] Launcher icon — adaptive foreground/background + Android 13 monochrome (themed) layer; `minSdk 31` so no legacy density bitmaps; system splash reuses the icon **(done)**
@@ -510,5 +512,5 @@ The MVP is done when **all** of these are true:
 | Q1 | Product name on the launcher: "MyHealthBuddy" or "HealthMate"? | **HealthBuddy** — matches the package and the launcher label |
 | Q2 | Target set: Android only, or Android + iOS + Desktop? | **Android only** |
 | Q3 | Real local notifications in scope? | **No** — Phase 5 optional |
-| Q4 | Hindi + Marathi, or Hindi only? | **Chrome in EN/HI/MR; clinical content EN/HI** — Marathi clinical copy is not reviewed, so it falls back |
+| Q4 | Hindi + Marathi + Odia, or Hindi only? | **Chrome in EN/HI/MR/OR; clinical content EN/HI** — Marathi and Odia clinical copy is not reviewed, so it falls back |
 | Q5 | Neurological condition in seed data too? | **No** — three conditions is enough for the demo |

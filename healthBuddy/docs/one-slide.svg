@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="HealthBuddy: the barrier loop and a deliberately boring architecture">
+  <title>HealthBuddy — one slide</title>
+
+  <rect width="1600" height="900" fill="#FAF7F0"/>
+
+  <!-- header -->
+  <rect width="1600" height="132" fill="#1F6F5C"/>
+  <text x="64" y="66" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="40" font-weight="700" fill="#FFFCF3" letter-spacing="-0.5">HealthBuddy</text>
+  <text x="64" y="102" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="17" fill="#CDE4DB">Every reminder app tells you when. HealthBuddy asks why you didn&#8217;t.</text>
+
+  <!-- left: the loop -->
+  <text x="64" y="186" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1F6F5C" letter-spacing="2">THE LOOP</text>
+  <line x1="92" y1="232" x2="92" y2="648" stroke="#BBD6CB" stroke-width="2.5"/>
+
+  <g font-family="Inter, Roboto, Helvetica, Arial, sans-serif">
+    <circle cx="92" cy="232" r="20" fill="#1F6F5C"/>
+    <text x="92" y="237.5" font-size="15" font-weight="700" fill="#FFFCF3" text-anchor="middle">1</text>
+    <text x="132" y="227" font-size="20" font-weight="700" fill="#16342C">REMIND</text>
+    <text x="132" y="252" font-size="14" fill="#5A6661">a dose comes due</text>
+
+    <circle cx="92" cy="336" r="20" fill="#1F6F5C"/>
+    <text x="92" y="341.5" font-size="15" font-weight="700" fill="#FFFCF3" text-anchor="middle">2</text>
+    <text x="132" y="331" font-size="20" font-weight="700" fill="#16342C">LOG</text>
+    <text x="132" y="356" font-size="14" fill="#5A6661">Taken &#183; Missed &#183; Not sure</text>
+
+    <circle cx="92" cy="440" r="20" fill="#1F6F5C"/>
+    <text x="92" y="445.5" font-size="15" font-weight="700" fill="#FFFCF3" text-anchor="middle">3</text>
+    <text x="132" y="435" font-size="20" font-weight="700" fill="#16342C">IDENTIFY</text>
+    <text x="132" y="460" font-size="14" fill="#5A6661">&#8220;What made it difficult today?&#8221; &#8212; nine one-tap options</text>
+
+    <circle cx="92" cy="544" r="20" fill="#1F6F5C"/>
+    <text x="92" y="549.5" font-size="15" font-weight="700" fill="#FFFCF3" text-anchor="middle">4</text>
+    <text x="132" y="539" font-size="20" font-weight="700" fill="#16342C">SUPPORT</text>
+    <text x="132" y="564" font-size="14" fill="#5A6661">a reviewed, barrier-specific next step</text>
+
+    <circle cx="92" cy="648" r="20" fill="#1F6F5C"/>
+    <text x="92" y="653.5" font-size="15" font-weight="700" fill="#FFFCF3" text-anchor="middle">5</text>
+    <text x="132" y="643" font-size="20" font-weight="700" fill="#16342C">FOLLOW UP</text>
+    <text x="132" y="668" font-size="14" fill="#5A6661">&#8220;Was this helpful?&#8221; &#8594; next safe step</text>
+  </g>
+
+  <text x="64" y="716" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="14" fill="#6B7A74">One sheet &#183; six taps or fewer &#183; no dead ends, no score, no streak</text>
+
+  <!-- right: architecture -->
+  <text x="840" y="186" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1F6F5C" letter-spacing="2">ARCHITECTURE</text>
+
+  <g font-family="Inter, Roboto, Helvetica, Arial, sans-serif">
+    <rect x="840" y="206" width="696" height="96" rx="14" fill="#FFFFFF" stroke="#DCE7E1" stroke-width="1.5"/>
+    <text x="868" y="244" font-size="20" font-weight="700" fill="#16342C">Compose UI</text>
+    <text x="868" y="274" font-size="14" fill="#5A6661">One Scaffold &#183; one animated top bar &#183; type-safe navigation</text>
+
+    <rect x="840" y="314" width="696" height="96" rx="14" fill="#FFFFFF" stroke="#DCE7E1" stroke-width="1.5"/>
+    <text x="868" y="352" font-size="20" font-weight="700" fill="#16342C">AppState</text>
+    <text x="868" y="382" font-size="14" fill="#5A6661">One observable holder &#8212; every mutation in one place</text>
+
+    <rect x="840" y="422" width="696" height="96" rx="14" fill="#FFFFFF" stroke="#DCE7E1" stroke-width="1.5"/>
+    <text x="868" y="460" font-size="20" font-weight="700" fill="#16342C">Store</text>
+    <text x="868" y="490" font-size="14" fill="#5A6661">One versioned JSON blob in SharedPreferences &#183; no DB, no DI, no network</text>
+  </g>
+
+  <!-- right: differentiators -->
+  <text x="840" y="572" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1F6F5C" letter-spacing="2">WHY IT&#8217;S DIFFERENT</text>
+
+  <g font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#22332D">
+    <circle cx="846" cy="604" r="4" fill="#F2B84B"/>
+    <text x="864" y="609">Asks why, not just when &#8212; nine barrier options, one tap each</text>
+
+    <circle cx="846" cy="640" r="4" fill="#F2B84B"/>
+    <text x="864" y="645">Answers with a reviewed next step, never a score or a streak</text>
+
+    <circle cx="846" cy="676" r="4" fill="#F2B84B"/>
+    <text x="864" y="681">Fully offline: no login, no backend, no permissions</text>
+
+    <circle cx="846" cy="712" r="4" fill="#F2B84B"/>
+    <text x="864" y="717">Escalates safely: 14416 for distress, 104 for cost or access</text>
+  </g>
+
+  <!-- footer -->
+  <line x1="64" y1="790" x2="1536" y2="790" stroke="#E1EBE6" stroke-width="1"/>
+  <text x="64" y="824" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#7A8781">Material 3 Expressive &#183; Jetpack Compose &#183; minSdk 31 &#183; EN / HI / MR / OR</text>
+  <text x="1536" y="824" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#7A8781" text-anchor="end">org.dev.healthbuddy</text>
+</svg>

@@ -167,12 +167,25 @@ fun SettingsScreen(state: AppState) {
                 modifier = Modifier.weight(1f),
                 onCheckedChange = { state.changeLanguage(Lang.HI) }
             ) { Text("हिंदी") }
+        }
 
+        Spacer(Modifier.height(8.dp))
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
             ToggleButton(
                 checked = state.lang == Lang.MR,
                 modifier = Modifier.weight(1f),
                 onCheckedChange = { state.changeLanguage(Lang.MR) }
             ) { Text("मराठी") }
+
+            ToggleButton(
+                checked = state.lang == Lang.OR,
+                modifier = Modifier.weight(1f),
+                onCheckedChange = { state.changeLanguage(Lang.OR) }
+            ) { Text("ଓଡ଼ିଆ") }
         }
 
         Spacer(Modifier.height(20.dp))

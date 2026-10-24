@@ -27,7 +27,7 @@ Min SDK 31 (Android 12) · target SDK 37.
 
 | Screen | What it does |
 |---|---|
-| **Onboarding** | Name + language (EN / हिंदी / मराठी). Two questions, nothing else. |
+| **Onboarding** | Name + language (EN / हिंदी / मराठी / ଓଡ଼ିଆ). Two questions, nothing else. |
 | **Today** | Needs-attention card, today's doses, next appointment, health tip |
 | **Medicines** | Add / toggle medicines and reminder times; the **+** FAB opens the add form as a bottom sheet; swipe a row left to remove it |
 | **History** | Every dose, its barrier, whether the help was useful, this week's barrier counts, and a one-tap **Share summary** for a clinician |
@@ -61,33 +61,35 @@ Run these in order. Each maps to a PRD acceptance criterion.
 1. **Cold start** → onboarding appears. Enter a name, pick हिंदी, tap Start.
    → UI is in Hindi, dashboard is populated.
 2. **Settings → Language → English** → UI switches instantly, no restart.
-3. **Needs attention** card is visible (yesterday's Metformin was seeded as missed).
-4. Tap it → *"What made it difficult today?"* appears with 9 options. The phone gives
+3. **Settings → Language → ଓଡ଼ିଆ** → chrome is in Odia; barrier and education cards
+   stay in English by design (unreviewed clinical copy is never machine-translated).
+4. **Needs attention** card is visible (yesterday's Metformin was seeded as missed).
+5. Tap it → *"What made it difficult today?"* appears with 9 options. The phone gives
    a confirm haptic.
-5. Tap **"It costs too much"** → support card with body, care bullets, amber safety note.
-6. Tap **Done** → *"Was this helpful?"* → tap **Yes**.
-7. Close the sheet → a snackbar confirms what was logged; the dashboard card is gone.
-8. **History** → the entry shows `Barrier: It costs too much` and `Helpful: Yes`, and the
+6. Tap **"It costs too much"** → support card with body, care bullets, amber safety note.
+7. Tap **Done** → *"Was this helpful?"* → tap **Yes**.
+8. Close the sheet → a snackbar confirms what was logged; the dashboard card is gone.
+9. **History** → the entry shows `Barrier: It costs too much` and `Helpful: Yes`, and the
    weekly card at the top counts that barrier. It must contain no advice or score.
    Tap **Share summary** → the Android share sheet opens with a plain-text 30-day
    summary (counts, barriers, medicines). No permission prompt, no network.
-9. **Settings → Replay demo scenario** → resets to Ravi's story **and** opens the missed
+10. **Settings → Replay demo scenario** → resets to Ravi's story **and** opens the missed
    dose straight at the barrier question.
-10. **Kill the app from recents, relaunch** → all data is still there.
-11. **Settings → Private mode** on → medicine names are hidden on Today.
-12. **Settings → Reset all data** → confirm → onboarding returns.
-13. **Medicines** → tap **+**; the add form rises as a bottom sheet over the list (no new
+11. **Kill the app from recents, relaunch** → all data is still there.
+12. **Settings → Private mode** on → medicine names are hidden on Today.
+13. **Settings → Reset all data** → confirm → onboarding returns.
+14. **Medicines** → tap **+**; the add form rises as a bottom sheet over the list (no new
     screen, no back arrow). Save adds the medicine and the sheet closes.
-14. Swipe a medicine row left; it reveals a red **Remove** action and deletes on
+15. Swipe a medicine row left; it reveals a red **Remove** action and deletes on
     release. There is no delete icon on the row.
 
 ### Safety checks (the ones that matter)
 
-15. Open the **COST** card → it must say *"Never stop or change a prescribed medicine on your own."*
-16. Open the **SIDE EFFECTS** card → it must never suggest stopping the medicine.
-17. Open the **DISTRESS** card → it must offer `Call 14416`, and dialling must use the
+16. Open the **COST** card → it must say *"Never stop or change a prescribed medicine on your own."*
+17. Open the **SIDE EFFECTS** card → it must never suggest stopping the medicine.
+18. Open the **DISTRESS** card → it must offer `Call 14416`, and dialling must use the
     system dialer (no permission required, no call placed automatically).
-18. Choose **"I'd rather not say"** → the app must not nag, badge, or re-ask.
+19. Choose **"I'd rather not say"** → the app must not nag, badge, or re-ask.
 
 ---
 

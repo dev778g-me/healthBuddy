@@ -4,10 +4,10 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import org.dev.healthbuddy.domain.Lang
 
 /**
- * UI chrome in English / Hindi / Marathi.
+ * UI chrome in English / Hindi / Marathi / Odia.
  *
- * Clinical *content* (barrier responses, education cards) is English + Hindi.
- * Marathi falls back to English for that content — deliberate: shipping
+ * Clinical *content* (barrier responses, education cards, tips) is English + Hindi.
+ * Marathi and Odia fall back to English for that content — deliberate: shipping
  * unreviewed machine-translated medical copy is worse than shipping one
  * reviewed language (PRD §11.3).
  */
@@ -458,10 +458,118 @@ val MrStrings = Strings(
     addTime = "जोडा"
 )
 
+val OrStrings = Strings(
+    appName = "HealthBuddy",
+    hello = "ନମସ୍କାର",
+    tagline = "ପ୍ରତିବନ୍ଧକ ବୁଝନ୍ତୁ। ପରବର୍ତ୍ତୀ ସୁରକ୍ଷିତ ପଦକ୍ଷେପ ନିଅନ୍ତୁ।",
+    onboardTitle = "ଚାଲନ୍ତୁ ଆପଣଙ୍କ ସାଥୀ ପ୍ରସ୍ତୁତ କରିବା",
+    onboardBody = "କେବଳ ଦୁଇଟି ପ୍ରଶ୍ନ। ଆପଣଙ୍କ ତଥ୍ୟ ଏହି ଫୋନ୍ରେ ରହିବ।",
+    yourName = "ଆମେ ଆପଣଙ୍କୁ କ'ଣ ଡାକିବା?",
+    nameHint = "ଆପଣଙ୍କ ନାମ",
+    chooseLanguage = "ଭାଷା",
+    getStarted = "ଆରମ୍ଭ କରନ୍ତୁ",
+    tabToday = "ଆଜି",
+    tabMedicines = "ଔଷଧ",
+    tabHistory = "ଇତିହାସ",
+    tabLearn = "ଜାଣନ୍ତୁ",
+    needsAttention = "ଧ୍ୟାନ ଆବଶ୍ୟକ",
+    needsAttentionBody = "ଏକ ଡୋଜ୍ ଛୁଟିଯାଇଛି। କାରଣ ଜଣାଇବା ପାଇଁ ଟ୍ୟାପ୍ କରନ୍ତୁ।",
+    todaySchedule = "ଆଜିର ଔଷଧ",
+    nothingToday = "ବର୍ତ୍ତମାନ କିଛି ବାକି ନାହିଁ",
+    nothingTodayBody = "ଆପଣଙ୍କ ପରବର୍ତ୍ତୀ ରିମାଇଣ୍ଡର ଏଠାରେ ଦେଖାଯିବ।",
+    upcoming = "ଆସନ୍ତା ଅପଏଣ୍ଟମେଣ୍ଟ",
+    noUpcoming = "କୌଣସି ଅପଏଣ୍ଟମେଣ୍ଟ ନିର୍ଧାରିତ ନାହିଁ",
+    tipOfDay = "ଆଜିର ସ୍ୱାସ୍ଥ୍ୟ ଟିପ୍",
+    identified = "ପ୍ରତିବନ୍ଧକ ଚିହ୍ନଟ ହେଲା",
+    tapToExplain = "କାରଣ ଜଣାଇବା ପାଇଁ ଟ୍ୟାପ୍ କରନ୍ତୁ",
+    didYouTake = "ଆପଣ ଏହା ନେଇଛନ୍ତି କି?",
+    taken = "ନିଆଯାଇଛି",
+    missed = "ଛୁଟିଯାଇଛି",
+    notSure = "ନିଶ୍ଚିତ ନାହିଁ",
+    notSureTitle = "ଚିନ୍ତା ନାହିଁ",
+    notSureBody = "ଅନିଶ୍ଚିତ ଭାବରେ ଚିହ୍ନିତ ହେଲା। ପ୍ୟାକେଟ୍ ଦେଖନ୍ତୁ କିମ୍ବା ଫାର୍ମାସିଷ୍ଟଙ୍କୁ ପଚାରନ୍ତୁ — କ୍ଷତିପୂରଣ ପାଇଁ ଅତିରିକ୍ତ ଡୋଜ୍ ନେବନାହିଁ।",
+    whyQuestion = "ଆଜି ଏହା କାହିଁକି କଷ୍ଟକର ହେଲା?",
+    nextStep = "ଆପଣଙ୍କ ପରବର୍ତ୍ତୀ ପଦକ୍ଷେପ",
+    wasHelpful = "ଏହା ସହାୟକ ହେଲା କି?",
+    yes = "ହଁ",
+    somewhat = "ନିଶ୍ଚିତ ନାହିଁ",
+    no = "ନା",
+    done = "ସରିଲା",
+    close = "ବନ୍ଦ କରନ୍ତୁ",
+    medicinesTitle = "ମୋର ଔଷଧ",
+    addMedicine = "ଔଷଧ ଯୋଡ଼ନ୍ତୁ",
+    noMedicines = "ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଔଷଧ ନାହିଁ",
+    noMedicinesBody = "ରିମାଇଣ୍ଡର ପାଇବା ପାଇଁ ଆପଣଙ୍କ ଡାକ୍ତରଙ୍କ ଲେଖା ଔଷଧ ଯୋଡ଼ନ୍ତୁ।",
+    medicineName = "ଔଷଧର ନାମ",
+    doseAmount = "ଡୋଜ୍ (ଯେପରି 500 ମି.ଗ୍ରା.)",
+    conditionLabel = "କେଉଁ ରୋଗ ପାଇଁ?",
+    timesLabel = "ରିମାଇଣ୍ଡର ସମୟ",
+    timeFormatHint = "24-ଘଣ୍ଟା ଫର୍ମାଟ୍ ବ୍ୟବହାର କରନ୍ତୁ, ଯେପରି 20:30",
+    save = "ସେଭ୍ କରନ୍ତୁ",
+    cancel = "ବାତିଲ୍",
+    remove = "ହଟାନ୍ତୁ",
+    activeLabel = "ସକ୍ରିୟ",
+    historyTitle = "ଇତିହାସ",
+    noHistory = "ଏପର୍ଯ୍ୟନ୍ତ କିଛି ଲଗ୍ ହୋଇନାହିଁ",
+    noHistoryBody = "ଆପଣଙ୍କ ଡୋଜ୍ ଲଗ୍ ଏଠାରେ ଦେଖାଯିବ।",
+    barrierLabel = "ପ୍ରତିବନ୍ଧକ",
+    helpfulLabel = "ସହାୟକ",
+    today = "ଆଜି",
+    yesterday = "ଗତକାଲି",
+    learnTitle = "ଜାଣନ୍ତୁ",
+    learnSubtitle = "ଆପଣଙ୍କ ଚିକିତ୍ସା ବିଷୟରେ ସରଳ ଭାଷାରେ ସୂଚନା",
+    whyMattersTitle = "ଏହା କାହିଁକି ଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ",
+    researchTitle = "ଗବେଷଣା ପ୍ରଶ୍ନ",
+    researchBody = "ଏକ ପ୍ରତିବନ୍ଧକ-ସଚେତନ ମୋବାଇଲ୍ ଆପ୍ଲିକେସନ୍, କେବଳ ରିମାଇଣ୍ଡର ଆଧାରିତ ଆଭିମୁଖ୍ୟ ତୁଳନାରେ, ଔଷଧ ସେବନ ଏବଂ ସ୍ୱାସ୍ଥ୍ୟ ସହାୟତା ଖୋଜିବା ପାଇଁ ଅଧିକ ପ୍ରାସଙ୍ଗିକ ଓ ଉପଯୋଗୀ ସହାୟତା ଦେଇପାରିବ କି?",
+    neverTitle = "ଏହି ଆପ୍ ଯାହା କେବେ ବି କରିବ ନାହିଁ",
+    neverBody = "ଏହା ଔଷଧ ବନ୍ଦ କରିବା, ଆରମ୍ଭ କରିବା କିମ୍ବା ବଦଳାଇବା ପାଇଁ କହିବ ନାହିଁ। ଏହା ରୋଗ ନିର୍ଣ୍ଣୟ କରିବ ନାହିଁ। ପ୍ରତ୍ୟେକ ପରାମର୍ଶ ଜଣେ ପ୍ରକୃତ ସ୍ୱାସ୍ଥ୍ୟ ବିଶେଷଜ୍ଞଙ୍କ ପାଖରେ ପହଞ୍ଚିବାର ବାଟରେ ଶେଷ ହୁଏ।",
+    loopRemindTitle = "ମନେ ପକାନ୍ତୁ",
+    loopRemindBody = "ଡୋଜ୍ କିମ୍ବା ଭିଜିଟ୍ ପାଇଁ ରିମାଇଣ୍ଡର।",
+    loopIdentifyTitle = "ଚିହ୍ନଟ କରନ୍ତୁ",
+    loopIdentifyBody = "ଗୋଟିଏ ଟ୍ୟାପ୍: ଆଜି ଏହା କାହିଁକି କଷ୍ଟକର ହେଲା?",
+    loopSupportTitle = "ସହାୟତା",
+    loopSupportBody = "ସେହି ପ୍ରତିବନ୍ଧକ ପାଇଁ ଉପଯୁକ୍ତ, ସମୀକ୍ଷିତ ପରବର୍ତ୍ତୀ ପଦକ୍ଷେପ।",
+    loopFollowUpTitle = "ଅନୁସରଣ",
+    loopFollowUpBody = "ଏହା ଉପଯୋଗୀ ହେଲା କି? ନହେଲେ ପରେ କ'ଣ?",
+    settingsTitle = "ସେଟିଂସ୍",
+    languageLabel = "ଭାଷା",
+    themeLabel = "ଥିମ୍",
+    themeSystem = "ସିଷ୍ଟମ୍",
+    themeLight = "ଲାଇଟ୍",
+    themeDark = "ଡାର୍କ",
+    privateMode = "ପ୍ରାଇଭେଟ୍ ମୋଡ୍",
+    privateModeBody = "ଏହି ସ୍କ୍ରିନରେ ଔଷଧର ନାମ ଲୁଚାଏ — ସେୟାର୍ କରାଯାଉଥିବା ଫୋନ୍ ପାଇଁ ଉପଯୋଗୀ।",
+    demoScenario = "ଡେମୋ ପରିଦୃଶ୍ୟ ପୁନଃ ଚଲାନ୍ତୁ",
+    demoScenarioBody = "ରବିଙ୍କ କାହାଣୀକୁ ଫେରାଏ: ଗତକାଲିର ଛୁଟିଯାଇଥିବା ଡୋଜ୍, ବ୍ୟାଖ୍ୟା ପାଇଁ ପ୍ରସ୍ତୁତ।",
+    resetData = "ସମସ୍ତ ଡାଟା ରିସେଟ୍ କରନ୍ତୁ",
+    resetConfirm = "ଏହା ଏହି ଫୋନ୍ରୁ ସମସ୍ତ ଔଷଧ ଓ ଇତିହାସ ଡିଲିଟ୍ କରିବ।",
+    aboutBody = "HealthBuddy ଏକ ଶିକ୍ଷାମୂଳକ ପ୍ରୋଟୋଟାଇପ୍। ଏହା ରୋଗ ନିର୍ଣ୍ଣୟ କିମ୍ବା ପ୍ରେସ୍କ୍ରିପ୍ସନ୍ କରେ ନାହିଁ, କିମ୍ବା ଡାକ୍ତରଙ୍କ ବିକଳ୍ପ ନୁହେଁ।",
+    disclaimer = "କେବଳ ଶିକ୍ଷାମୂଳକ ସହାୟତା। ସର୍ବଦା ଜଣେ ଯୋଗ୍ୟ ସ୍ୱାସ୍ଥ୍ୟ ବିଶେଷଜ୍ଞଙ୍କ ପରାମର୍ଶ ନିଅନ୍ତୁ।",
+    callNow = "କଲ୍ କରନ୍ତୁ",
+    moveReminder = "ଏହି ରିମାଇଣ୍ଡର ସ୍ଥାନାନ୍ତର କରନ୍ତୁ",
+    later15 = "15 ମିନିଟ୍ ପରେ",
+    later30 = "30 ମିନିଟ୍ ପରେ",
+    later60 = "1 ଘଣ୍ଟା ପରେ",
+    reminderMoved = "ରିମାଇଣ୍ଡର ସ୍ଥାନାନ୍ତରିତ ହେଲା",
+
+    back = "ପଛକୁ",
+    weeklyTitle = "ଏହି ସପ୍ତାହରେ କ'ଣ ବାଧା ହେଲା",
+    weeklyCaption = "ଏହା ପ୍ୟାଟର୍ନ, ବିଚାର ନୁହେଁ। ଏଥିରୁ କୌଣସି ପରାମର୍ଶ ତିଆରି ହୁଏ ନାହିଁ।",
+    shareSummary = "ସାରାଂଶ ସେୟାର୍ କରନ୍ତୁ",
+    summaryTitle = "HealthBuddy ଭିଜିଟ୍ ସାରାଂଶ",
+    summaryDoses = "ଲଗ୍ ହୋଇଥିବା ଡୋଜ୍",
+    summaryBarriers = "କ'ଣ ବାଧା ହେଲା",
+    summaryMedicines = "ଔଷଧ",
+    summaryFooter = "କେବଳ ଗଣନା — କୌଣସି ଚିକିତ୍ସା ପରାମର୍ଶ ନାହିଁ। HealthBuddy ରୁ ସେୟାର୍ କରାଯାଇଛି।",
+    swipeToRemoveHint = "ଔଷଧ ହଟାଇବା ପାଇଁ ବାମକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ।",
+    addTime = "ଯୋଡ଼ନ୍ତୁ"
+)
+
 fun Lang.strings(): Strings = when (this) {
     Lang.EN -> EnStrings
     Lang.HI -> HiStrings
     Lang.MR -> MrStrings
+    Lang.OR -> OrStrings
 }
 
 val LocalStrings = staticCompositionLocalOf { EnStrings }
