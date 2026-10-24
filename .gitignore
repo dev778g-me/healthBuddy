@@ -1,0 +1,12 @@
+# Build / tooling output
+healthBuddy/build/
+healthBuddy/.gradle/
+healthBuddy/.kotlin/
+healthBuddy/.idea/
+healthBuddy/local.properties
+healthBuddy/app/build/
+
+# OS / editor
+.DS_Store
+*.iml
+*.hprof

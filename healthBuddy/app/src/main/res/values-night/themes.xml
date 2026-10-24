@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+      Dark counterpart of values/themes.xml.
+      Without this, the launch window is always the Light theme, so the app
+      flashes white and system bars stay light even in dark mode.
+    -->
+    <style name="Theme.HealthBuddy" parent="android:Theme.Material.NoActionBar" />
+
+</resources>
