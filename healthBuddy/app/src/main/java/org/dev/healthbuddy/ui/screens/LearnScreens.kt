@@ -58,7 +58,9 @@ fun LearnScreen(
     val s = LocalStrings.current
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background, shape = MaterialTheme.shapes.medium),
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -146,6 +148,7 @@ fun LearnDetailScreen(state: AppState) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background, shape = MaterialTheme.shapes.medium)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
     ) {

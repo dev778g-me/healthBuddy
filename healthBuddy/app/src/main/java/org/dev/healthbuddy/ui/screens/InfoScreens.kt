@@ -47,6 +47,7 @@ fun WhyMattersScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background, shape = MaterialTheme.shapes.medium)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp)
     ) {
@@ -149,6 +150,7 @@ fun SettingsScreen(state: AppState) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background, shape = MaterialTheme.shapes.medium)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp)
     ) {

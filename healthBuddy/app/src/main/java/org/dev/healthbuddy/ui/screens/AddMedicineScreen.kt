@@ -1,5 +1,6 @@
 package org.dev.healthbuddy.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,6 +53,7 @@ fun AddMedicineScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background, shape = MaterialTheme.shapes.medium)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
     ) {

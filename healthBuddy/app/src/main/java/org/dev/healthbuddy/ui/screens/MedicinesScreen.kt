@@ -45,13 +45,18 @@ fun MedicinesScreen(state: AppState) {
         EmptyState(
             icon = Icons.Filled.List,
             title = s.noMedicines,
-            body = s.noMedicinesBody
+            body = s.noMedicinesBody,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background, shape = MaterialTheme.shapes.medium)
         )
         return
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background, shape = MaterialTheme.shapes.medium),
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 96.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -116,13 +121,18 @@ fun HistoryScreen(
         EmptyState(
             icon = Icons.Filled.List,
             title = s.noHistory,
-            body = s.noHistoryBody
+            body = s.noHistoryBody,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background, shape = MaterialTheme.shapes.medium)
         )
         return
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background, shape = MaterialTheme.shapes.medium),
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
