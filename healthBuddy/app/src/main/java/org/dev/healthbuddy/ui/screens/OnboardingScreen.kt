@@ -1,7 +1,6 @@
 package org.dev.healthbuddy.ui.screens
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,19 +8,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.fitInside
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -34,22 +29,31 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import org.dev.healthbuddy.R
 import org.dev.healthbuddy.data.AppState
 import org.dev.healthbuddy.domain.Lang
+import org.dev.healthbuddy.notifications.ReminderPermissions
+import org.dev.healthbuddy.ui.components.RemindersCard
 import org.dev.healthbuddy.ui.i18n.LocalStrings
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun OnboardingScreen(state: AppState) {
     val s = LocalStrings.current
+    val context = LocalContext.current
     var name by remember { mutableStateOf("") }
+    var remindersWanted by remember { mutableStateOf(true) }
+    // Seeded from the real system state so a re-install on a phone that has
+    // already granted both does not show a disabled Continue for a frame.
+    var permissionsReady by remember {
+        mutableStateOf(
+            ReminderPermissions.notificationsEnabled(context) &&
+                ReminderPermissions.exactAlarmsEnabled(context)
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -79,11 +83,7 @@ fun OnboardingScreen(state: AppState) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
-            Image(
-                painter = painterResource(id = R.drawable.med),
-                contentDescription = null,
-                modifier = Modifier.size(200.dp).align(Alignment.End).weight(1f)
-            )
+
             Text(
                 text = s.onboardTitle,
                 style = MaterialTheme.typography.headlineLarge
@@ -146,13 +146,21 @@ fun OnboardingScreen(state: AppState) {
                 }
             }
 
+            Spacer(Modifier.height(4.dp))
+            RemindersCard(
+                checked = remindersWanted,
+                onCheckedChange = { remindersWanted = it },
+                onPermissionsChanged = { permissionsReady = it }
+            )
+
             Text(
                 text = s.disclaimer,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Button(
-                onClick = { state.completeOnboarding(name, state.lang) },
+                onClick = { state.completeOnboarding(name, state.lang, remindersWanted) },
+                enabled = !remindersWanted || permissionsReady,
                 modifier = Modifier.fillMaxWidth(),
                 shapes = ButtonDefaults.shapes()
             ) {

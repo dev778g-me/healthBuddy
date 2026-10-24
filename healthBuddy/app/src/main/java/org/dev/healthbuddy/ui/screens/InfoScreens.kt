@@ -37,6 +37,7 @@ import org.dev.healthbuddy.data.AppState
 import org.dev.healthbuddy.domain.Lang
 import org.dev.healthbuddy.domain.ThemeMode
 import org.dev.healthbuddy.ui.components.HbCard
+import org.dev.healthbuddy.ui.components.RemindersCard
 import org.dev.healthbuddy.ui.i18n.LocalStrings
 
 /** The pitch screen: the loop, the research question, the safety stance. */
@@ -215,6 +216,15 @@ fun SettingsScreen(state: AppState) {
         }
 
         Spacer(Modifier.height(22.dp))
+
+        RemindersCard(
+            checked = state.remindersEnabled,
+            onCheckedChange = { state.changeRemindersEnabled(it) },
+            // Re-arm as soon as a permission is granted on the way back.
+            onPermissionsChanged = { ready -> if (ready) state.syncReminders() }
+        )
+
+        Spacer(Modifier.height(12.dp))
 
         HbCard(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh) {
             Row(verticalAlignment = Alignment.CenterVertically) {
