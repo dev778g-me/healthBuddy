@@ -13,16 +13,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.composables.icons.lucide.CalendarDays
 import com.composables.icons.lucide.Lucide
 import org.dev.healthbuddy.data.AppState
+import org.dev.healthbuddy.domain.BarrierCatalog
 import org.dev.healthbuddy.domain.DoseSlot
 import org.dev.healthbuddy.domain.DoseStatus
 import org.dev.healthbuddy.ui.Fmt
@@ -31,6 +37,7 @@ import org.dev.healthbuddy.ui.components.HbCard
 import org.dev.healthbuddy.ui.components.SectionTitle
 import org.dev.healthbuddy.ui.components.StatusPill
 import org.dev.healthbuddy.ui.components.statusColors
+import org.dev.healthbuddy.ui.components.statusContainerColors
 import org.dev.healthbuddy.ui.components.statusLabel
 import org.dev.healthbuddy.ui.i18n.LocalStrings
 
@@ -48,7 +55,7 @@ fun DashboardScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background, shape = MaterialTheme.shapes.medium),
-        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 32.dp),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
@@ -88,9 +95,15 @@ fun DashboardScreen(
                 )
             }
         } else {
-            items(slots, key = { "today-${it.id}" }) { slot ->
-                DoseCard(slot = slot, state = state, onClick = { onOpenFlow(slot) })
-            }
+           item {
+               Column(
+                   verticalArrangement = Arrangement.spacedBy(2.dp)
+               ) {
+                   slots.forEach { slot ->
+                       DoseCard(slot = slot, state = state, onClick = { onOpenFlow(slot) }, shape = joinedBlockShape(isFirst = slot == slots.first(), isLast = slot == slots.last()))
+                   }
+               }
+           }
         }
 
         if (appointment != null) {
@@ -147,9 +160,11 @@ private fun AttentionCard(
     onClick: () -> Unit
 ) {
     val s = LocalStrings.current
+    val (container, content) = statusContainerColors(DoseStatus.MISSED)
+    val (pillContainer, pillContent) = statusColors(DoseStatus.MISSED)
     HbCard(
-        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+        containerColor = container,
+        contentColor = content,
         onClick = onClick
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -165,8 +180,8 @@ private fun AttentionCard(
             }
             StatusPill(
                 text = s.missed,
-                container = MaterialTheme.colorScheme.tertiary,
-                content = MaterialTheme.colorScheme.onTertiary
+                container = pillContainer,
+                content = pillContent
             )
         }
         Spacer(Modifier.height(10.dp))
@@ -182,42 +197,19 @@ private fun AttentionCard(
 private fun DoseCard(
     slot: DoseSlot,
     state: AppState,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    shape : Shape,
 ) {
     val s = LocalStrings.current
     val (container, content) = statusColors(slot.status)
     val barrier = slot.log?.barrier
+    val isPending = slot.status == DoseStatus.PENDING
 
-    HbCard(onClick = onClick) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = Fmt.time(slot.time),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.width(78.dp)
-            )
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = if (state.privateMode) s.medicinesTitle else slot.medicine.name,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = if (state.privateMode) slot.medicine.condition
-                    else "${slot.medicine.dose} · ${slot.medicine.condition}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                if (slot.status == DoseStatus.MISSED && barrier != null) {
-                    Spacer(Modifier.height(6.dp))
-                    Text(
-                        text = "${s.identified}: " +
-                            org.dev.healthbuddy.domain.BarrierCatalog.of(barrier).text(state.lang).label,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-            Spacer(Modifier.width(8.dp))
+
+    val statusPill: (@Composable () -> Unit)? = if (isPending) {
+        null
+    } else {
+        {
             StatusPill(
                 text = statusLabel(slot.status, s),
                 container = container,
@@ -225,4 +217,61 @@ private fun DoseCard(
             )
         }
     }
+
+    ListItem(
+        onClick = onClick,
+        verticalAlignment = Alignment.CenterVertically,
+        shapes = ListItemDefaults.shapes(shape),
+        colors = ListItemDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
+        leadingContent = {
+            Text(
+                text = Fmt.time(slot.time),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = if (isPending) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                softWrap = false,
+                modifier = Modifier.width(64.dp)
+            )
+        },
+        trailingContent = statusPill,
+        supportingContent = {
+            Text(
+                text = if (state.privateMode) slot.medicine.condition
+                else "${slot.medicine.dose} · ${slot.medicine.condition}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (slot.status == DoseStatus.MISSED && barrier != null) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "${s.identified}: " +
+                        BarrierCatalog.of(barrier).text(state.lang).label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    ) {
+        Text(
+            text = if (state.privateMode) s.medicinesTitle else slot.medicine.name,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
 }
+
+internal fun joinedBlockShape(isFirst: Boolean, isLast: Boolean): AbsoluteRoundedCornerShape =
+    AbsoluteRoundedCornerShape(
+        topLeft = if (isFirst) 16.dp else 4.dp,
+        topRight = if (isFirst) 16.dp else 4.dp,
+        bottomLeft = if (isLast) 16.dp else 4.dp,
+        bottomRight = if (isLast) 16.dp else 4.dp
+    )

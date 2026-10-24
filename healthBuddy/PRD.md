@@ -351,15 +351,23 @@ app/src/main/java/org/dev/healthbuddy/
 └── ui/
     ├── App.kt                    root: onboarding vs shell, ONE Scaffold + animated top bar,
     │                             NavHost, FAB, snackbar, sheet host
-    ├── nav/Routes.kt             @Serializable destinations (Main, Settings, AddMedicine,
+    ├── nav/Routes.kt             @Serializable destinations (Main, Settings,
     │                             LearnDetail, WhyMatters)
     ├── Format.kt                 time / relative-date formatting
     ├── i18n/Strings.kt           EN / HI / MR chrome + LocalStrings
     ├── theme/                    Color.kt, Type.kt (expressive scale), Theme.kt
     ├── components/               HbCard, StatusPill, SafetyNote, OptionRow, EmptyState…
-    ├── screens/                  Onboarding, Dashboard, Medicines, AddMedicine,
+    ├── screens/                  Onboarding, Dashboard, Medicines (+ AddMedicineSheet),
     │                             History, Learn, LearnDetail, WhyMatters, Settings
     └── flow/DoseFlowSheet.kt     ★ the whole loop in one bottom sheet
+
+app/src/main/res/
+├── drawable/                     ic_launcher_{foreground,background,monochrome}.xml + onboarding glyph
+├── mipmap-anydpi/                <adaptive-icon> wrappers (square + round); no density bitmaps, minSdk 31
+├── values/, values-night/        theme, app name
+└── xml/                          backup / data-extraction rules
+
+branding/                         icon vectors, 512 px store art and notes (source only, not packaged)
 ```
 
 ### 12.3 Data model
@@ -383,7 +391,7 @@ Dates and times are stored as strings (`yyyy-MM-dd`, `HH:mm`) — the dataset is
 
 ### 12.4 Design direction
 
-- **Palette:** calm teal-green primary (`#1F6F5C`), warm sand background, soft coral only for *nothing* shaming — not red for missed doses. Missed = amber/grey "needs help", never red.
+- **Palette:** calm teal-green primary (`#1F6F5C`), warm sand background, status colours from the theme: success (green) for a logged dose, error for a missed one, both following the light/dark preference. The copy stays non-shaming — no scores, streaks or blame.
 - **Type:** system font, generous line height, one accent weight.
 - **Shape:** 20dp rounded cards, 28dp sheets, no hard borders.
 - **Motion:** bottom sheets slide, support card fades in with a 150ms rise. Nothing bouncy.
@@ -398,8 +406,8 @@ Sizes: **S** ≈ <30 min, **M** ≈ 1–2 h, **L** ≈ 3–4 h.
 ### Phase 0 — Scaffold (blocker)
 
 - [x] Project scaffolded: `healthBuddy/`, package `org.dev.healthbuddy`, minSdk 31, targetSdk 37 **(done)**
-- [x] Dependencies: Material 3 Expressive 1.5.0-beta02 (BOM 2026.09.00), material-icons-core, Navigation Compose 2.10.2 + kotlinx-serialization (needed for type-safe routes) **(done)**
-- [ ] Verify `./gradlew :app:assembleDebug` passes **(S)**
+- [x] Dependencies: Material 3 Expressive 1.5.0-beta02 (BOM 2026.09.00), Lucide icons 1.1.0 (`material-icons-core` removed), Navigation Compose 2.10.2 + kotlinx-serialization (needed for type-safe routes) **(done)**
+- [x] Verified `./gradlew :app:installDebug` on device — builds and runs **(done)**
 - [x] App name set to "HealthBuddy" **(done)**
 
 ### Phase 1 — Domain (no UI)
@@ -421,7 +429,7 @@ Sizes: **S** ≈ <30 min, **M** ≈ 1–2 h, **L** ≈ 3–4 h.
 ### Phase 3 — Supporting screens
 
 - [x] `OnboardingScreen` — language, name **(M)**
-- [x] `MedicinesScreen` + `AddMedicineScreen` **(L)**
+- [x] `MedicinesScreen` + add-medicine **bottom sheet** (no route) — row removal is a swipe action, not an always-visible delete icon **(L)**
 - [x] `HistoryScreen` — day-grouped timeline with barrier chips **(M)**
 - [x] `LearnScreen` + detail **(M)**
 - [x] `WhyItMattersScreen` — loop drawn in Compose **(M)**
@@ -434,13 +442,14 @@ Sizes: **S** ≈ <30 min, **M** ≈ 1–2 h, **L** ≈ 3–4 h.
 - [x] HI + MR strings for all UI chrome **(L)**
 - [x] Empty states (no medicines, no history, no logs today) **(S)**
 - [x] Dark mode **(M)**
-- [ ] Icon — **deferred by decision**; splash + launcher label "HealthBuddy" done **(S)**
+- [x] Launcher icon — adaptive foreground/background + Android 13 monochrome (themed) layer; `minSdk 31` so no legacy density bitmaps; system splash reuses the icon **(done)**
 - [ ] Rehearse §7 three times, time it **(S)** — presenter's job
 
 ### Phase 5 — Optional, only if Phase 4 is done
 
 - [ ] Local notification via `AlarmManager` — **not built** (§17 Q3 default: out of scope for v1)
 - [x] Weekly "what got in the way" summary card on History — counts only, no advice **(M)**
+- [x] **Share summary** on History — last 30 days of counts, barriers and medicines as plain text through the Android share sheet; no permission, no network, no advice **(S)**
 - [x] Haptic feedback (`HapticFeedbackType.Confirm`) + snackbar confirmation on log **(S)**
 
 ### Phase 6 — Documentation for submission
@@ -489,7 +498,7 @@ The MVP is done when **all** of these are true:
 3. App restart preserves all state.
 4. Airplane mode changes nothing.
 5. Every support card matches §10.2 word-for-word.
-6. No screen shows a red failure state for a missed dose.
+6. Status colours come from the theme — success for logged, error for missed — and no copy blames the user.
 7. §7 rehearsed under 90 seconds.
 
 ---

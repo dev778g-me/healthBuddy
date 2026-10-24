@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -55,6 +56,7 @@ fun HbCard(
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainerLow,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shape: Shape = MaterialTheme.shapes.large,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -62,7 +64,7 @@ fun HbCard(
         modifier = modifier
             .fillMaxWidth()
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier),
-        shape = MaterialTheme.shapes.large,
+        shape = shape,
         color = containerColor,
         contentColor = contentColor
     ) {

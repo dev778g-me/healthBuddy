@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Themed icon (Android 13+). Single colour; capsule cut out of the heart. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#000000"
+        android:fillType="evenOdd"
+        android:pathData="M 54.0,75.18 C 54.0,75.18 31.12,61.1 31.12,46.14 C 31.12,38.22 36.4,33.82 42.56,33.82 C 47.4,33.82 51.36,36.46 54.0,40.86 C 56.64,36.46 60.6,33.82 65.44,33.82 C 71.6,33.82 76.88,38.22 76.88,46.14 C 76.88,61.1 54.0,75.18 54.0,75.18 Z M49.15,49.5 L44.67,53.98 A5.72,5.72 0 0 0 52.76,62.07 L57.24,57.59 Z M50.76,47.89 L55.24,43.41 A5.72,5.72 0 0 1 63.33,51.5 L58.85,55.98 Z" />
+</vector>

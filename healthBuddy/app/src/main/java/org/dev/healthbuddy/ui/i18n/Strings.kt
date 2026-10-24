@@ -117,7 +117,16 @@ data class Strings(
 
     val back: String,
     val weeklyTitle: String,
-    val weeklyCaption: String
+    val weeklyCaption: String,
+
+    val shareSummary: String,
+    val summaryTitle: String,
+    val summaryDoses: String,
+    val summaryBarriers: String,
+    val summaryMedicines: String,
+    val summaryFooter: String,
+    val swipeToRemoveHint: String,
+    val addTime: String
 )
 
 val EnStrings = Strings(
@@ -220,7 +229,15 @@ val EnStrings = Strings(
 
     back = "Back",
     weeklyTitle = "What got in the way this week",
-    weeklyCaption = "Patterns, not judgements. No advice is generated from this."
+    weeklyCaption = "Patterns, not judgements. No advice is generated from this.",
+    shareSummary = "Share summary",
+    summaryTitle = "HealthBuddy visit summary",
+    summaryDoses = "Doses logged",
+    summaryBarriers = "What got in the way",
+    summaryMedicines = "Medicines",
+    summaryFooter = "Counts only — no medical advice. Shared from HealthBuddy.",
+    swipeToRemoveHint = "Swipe a medicine left to remove it.",
+    addTime = "Add"
 )
 
 val HiStrings = Strings(
@@ -321,7 +338,15 @@ val HiStrings = Strings(
 
     back = "वापस",
     weeklyTitle = "इस हफ़्ते किस बात ने रोका",
-    weeklyCaption = "ये पैटर्न हैं, कोई फ़ैसला नहीं। इससे कोई सलाह नहीं बनती।"
+    weeklyCaption = "ये पैटर्न हैं, कोई फ़ैसला नहीं। इससे कोई सलाह नहीं बनती।",
+    shareSummary = "सारांश साझा करें",
+    summaryTitle = "HealthBuddy मुलाक़ात सारांश",
+    summaryDoses = "दर्ज खुराकें",
+    summaryBarriers = "किस बात ने रोका",
+    summaryMedicines = "दवाइयाँ",
+    summaryFooter = "केवल गिनती — कोई चिकित्सकीय सलाह नहीं। HealthBuddy से साझा किया गया।",
+    swipeToRemoveHint = "हटाने के लिए दवा को बाईं ओर स्वाइप करें।",
+    addTime = "जोड़ें"
 )
 
 val MrStrings = Strings(
@@ -422,7 +447,15 @@ val MrStrings = Strings(
 
     back = "मागे",
     weeklyTitle = "या आठवड्यात काय अडले",
-    weeklyCaption = "हा नमुना आहे, निर्णय नाही. यातून कोणताही सल्ला तयार होत नाही."
+    weeklyCaption = "हा नमुना आहे, निर्णय नाही. यातून कोणताही सल्ला तयार होत नाही.",
+    shareSummary = "सारांश शेअर करा",
+    summaryTitle = "HealthBuddy भेटीचा सारांश",
+    summaryDoses = "नोंदवलेले डोस",
+    summaryBarriers = "कशामुळे अडले",
+    summaryMedicines = "औषधे",
+    summaryFooter = "फक्त मोजणी — कोणताही वैद्यकीय सल्ला नाही. HealthBuddy वरून शेअर केले.",
+    swipeToRemoveHint = "काढण्यासाठी औषध डावीकडे स्वाइप करा.",
+    addTime = "जोडा"
 )
 
 fun Lang.strings(): Strings = when (this) {

@@ -7,7 +7,10 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.example.ui.theme.AppTypography
@@ -241,6 +244,40 @@ private val highContrastDarkColorScheme = darkColorScheme(
 )
 
 @Immutable
+data class SuccessColors(
+    val success: Color,
+    val onSuccess: Color,
+    val successContainer: Color,
+    val onSuccessContainer: Color
+)
+
+/**
+ * Material 3 has no success role, but the app needs one for "dose logged".
+ * The pair lives next to the error role and follows the same theme preference
+ * (system / light / dark) that the rest of the scheme follows.
+ */
+private val successLight = SuccessColors(
+    success = Color(0xFF2E6B3F),
+    onSuccess = Color(0xFFFFFFFF),
+    successContainer = Color(0xFFD3EFDA),
+    onSuccessContainer = Color(0xFF0C3D1E)
+)
+
+private val successDark = SuccessColors(
+    success = Color(0xFF8FD9A4),
+    onSuccess = Color(0xFF0C3D1E),
+    successContainer = Color(0xFF1F4A2D),
+    onSuccessContainer = Color(0xFFB9F0C6)
+)
+
+val LocalSuccessColors = staticCompositionLocalOf { successLight }
+
+val MaterialTheme.successColors: SuccessColors
+    @Composable
+    @ReadOnlyComposable
+    get() = LocalSuccessColors.current
+
+@Immutable
 data class ColorFamily(
     val color: Color,
     val onColor: Color,
@@ -270,8 +307,12 @@ fun AppTheme(
 
   MaterialTheme(
     colorScheme = colorScheme,
-    typography = AppTypography,
-    content = content
-  )
+    typography = AppTypography
+  ) {
+    CompositionLocalProvider(
+      LocalSuccessColors provides if (darkTheme) successDark else successLight,
+      content = content
+    )
+  }
 }
 

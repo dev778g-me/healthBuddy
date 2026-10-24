@@ -15,9 +15,6 @@ data object MainRoute
 data object SettingsRoute
 
 @Serializable
-data object AddMedicineRoute
-
-@Serializable
 data object LearnDetailRoute
 
 @Serializable

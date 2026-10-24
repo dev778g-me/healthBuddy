@@ -1,5 +1,7 @@
 package org.dev.healthbuddy.ui.screens
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,22 +13,32 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.composables.icons.lucide.History
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Pill
+import com.composables.icons.lucide.Share2
 import com.composables.icons.lucide.Trash2
 import org.dev.healthbuddy.data.AppState
 import org.dev.healthbuddy.domain.Barrier
@@ -34,13 +46,19 @@ import org.dev.healthbuddy.domain.BarrierCatalog
 import org.dev.healthbuddy.domain.Lang
 import org.dev.healthbuddy.domain.Medicine
 import org.dev.healthbuddy.ui.Fmt
+import org.dev.healthbuddy.ui.VisitSummary
 import org.dev.healthbuddy.ui.components.EmptyState
 import org.dev.healthbuddy.ui.components.HbCard
 import org.dev.healthbuddy.ui.i18n.LocalStrings
+import org.dev.healthbuddy.ui.i18n.Strings
 
 @Composable
 fun MedicinesScreen(state: AppState) {
     val s = LocalStrings.current
+
+    if (state.addMedicineSheet) {
+        AddMedicineSheet(state)
+    }
 
     if (state.medicines.isEmpty()) {
         EmptyState(
@@ -61,26 +79,97 @@ fun MedicinesScreen(state: AppState) {
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 96.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(state.medicines, key = { it.id }) { med ->
-            MedicineRow(
-                med = med,
-                timesText = med.times.joinToString(" · ") { Fmt.time(it) },
-                onToggle = { state.toggleMedicine(med.id) },
-                onDelete = { state.removeMedicine(med.id) }
+        item(key = "swipe-hint") {
+            Text(
+                text = s.swipeToRemoveHint,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 4.dp)
             )
         }
+        item(key = "medicine-block") {
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                state.medicines.forEachIndexed { index, med ->
+                    val shape = joinedBlockShape(
+                        isFirst = index == 0,
+                        isLast = index == state.medicines.lastIndex
+                    )
+                    key(med.id) {
+                        SwipeToRemoveMedicine(
+                            shape = shape,
+                            onRemove = { state.removeMedicine(med.id) }
+                        ) {
+                            MedicineRow(
+                                med = med,
+                                shape = shape,
+                                timesText = med.times.joinToString(" · ") { Fmt.time(it) },
+                                onToggle = { state.toggleMedicine(med.id) }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Destructive action lives behind a swipe instead of an always-visible icon:
+ * it keeps the row calm and keeps deletion out of the tap path.
+ */
+@Composable
+private fun SwipeToRemoveMedicine(
+    shape: Shape,
+    onRemove: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    val s = LocalStrings.current
+    val dismissState = rememberSwipeToDismissBoxState()
+
+    SwipeToDismissBox(
+        state = dismissState,
+        modifier = Modifier.clip(shape),
+        enableDismissFromStartToEnd = false,
+        onDismiss = { value ->
+            if (value == SwipeToDismissBoxValue.EndToStart) onRemove()
+        },
+        backgroundContent = {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.errorContainer)
+                    .padding(horizontal = 24.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = s.remove,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Icon(
+                        imageVector = Lucide.Trash2,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                }
+            }
+        }
+    ) {
+        content()
     }
 }
 
 @Composable
 private fun MedicineRow(
     med: Medicine,
+    shape: Shape,
     timesText: String,
-    onToggle: () -> Unit,
-    onDelete: () -> Unit
+    onToggle: () -> Unit
 ) {
-    val s = LocalStrings.current
-    HbCard {
+    HbCard(shape = shape) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = med.name, style = MaterialTheme.typography.titleMedium)
@@ -97,14 +186,6 @@ private fun MedicineRow(
                 )
             }
             Switch(checked = med.active, onCheckedChange = { onToggle() })
-            Spacer(Modifier.width(4.dp))
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Lucide.Trash2,
-                    contentDescription = s.remove,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
         }
     }
 }
@@ -115,6 +196,7 @@ fun HistoryScreen(
     onOpenFlow: (org.dev.healthbuddy.domain.DoseSlot) -> Unit
 ) {
     val s = LocalStrings.current
+    val context = LocalContext.current
     val grouped = state.logsDesc().groupBy { it.date }
     val weekly = state.barrierCountsThisWeek()
 
@@ -137,6 +219,26 @@ fun HistoryScreen(
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        item(key = "share-summary") {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                FilledTonalButton(onClick = { shareVisitSummary(context, state, s) }) {
+                    Icon(
+                        imageVector = Lucide.Share2,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = s.shareSummary,
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+            }
+        }
+
         if (weekly.isNotEmpty()) {
             item(key = "weekly-barriers") {
                 WeeklyBarrierCard(weekly, state.lang)
@@ -260,4 +362,18 @@ private fun WeeklyBarrierCard(counts: List<Pair<Barrier, Int>>, lang: Lang) {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
+}
+
+/**
+ * Hands the summary to whatever app the user picks. No permission, no network:
+ * Android's share sheet does the sending, so the data leaves the phone only
+ * when the user chooses a destination.
+ */
+private fun shareVisitSummary(context: Context, state: AppState, s: Strings) {
+    val send = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_SUBJECT, s.summaryTitle)
+        putExtra(Intent.EXTRA_TEXT, VisitSummary.build(state, s))
+    }
+    context.startActivity(Intent.createChooser(send, s.shareSummary))
 }

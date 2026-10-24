@@ -139,6 +139,19 @@ class AppState(private val store: Store) {
         persist()
     }
 
+    // ---- add-medicine sheet (UI-only, never persisted) ---------------------
+
+    var addMedicineSheet by mutableStateOf(false)
+        private set
+
+    fun openAddMedicineSheet() {
+        addMedicineSheet = true
+    }
+
+    fun closeAddMedicineSheet() {
+        addMedicineSheet = false
+    }
+
     // ---- derived views ----------------------------------------------------
 
     fun todaySlots(): List<DoseSlot> = slotsFor(today())
@@ -227,6 +240,7 @@ class AppState(private val store: Store) {
         medicines = Seed.medicines()
         appointments = Seed.appointments()
         logs = Seed.demoLogs()
+        addMedicineSheet = false
         onboarded = true
         resetTab()
         pendingDemoFlow = true
@@ -254,6 +268,7 @@ class AppState(private val store: Store) {
         medicines = fresh.medicines
         logs = fresh.logs
         appointments = fresh.appointments
+        addMedicineSheet = false
         resetTab()
         store.save(fresh)
     }

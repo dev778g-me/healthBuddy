@@ -58,12 +58,10 @@ import org.dev.healthbuddy.domain.ThemeMode
 import org.dev.healthbuddy.ui.flow.DoseFlowSheet
 import org.dev.healthbuddy.ui.i18n.LocalStrings
 import org.dev.healthbuddy.ui.i18n.strings
-import org.dev.healthbuddy.ui.nav.AddMedicineRoute
 import org.dev.healthbuddy.ui.nav.LearnDetailRoute
 import org.dev.healthbuddy.ui.nav.MainRoute
 import org.dev.healthbuddy.ui.nav.SettingsRoute
 import org.dev.healthbuddy.ui.nav.WhyMattersRoute
-import org.dev.healthbuddy.ui.screens.AddMedicineScreen
 import org.dev.healthbuddy.ui.screens.DashboardScreen
 import org.dev.healthbuddy.ui.screens.HistoryScreen
 import org.dev.healthbuddy.ui.screens.LearnDetailScreen
@@ -143,7 +141,6 @@ private fun MainShell(state: AppState) {
 
     val title = when {
         destination?.hasRoute<SettingsRoute>() == true -> s.settingsTitle
-        destination?.hasRoute<AddMedicineRoute>() == true -> s.addMedicine
         destination?.hasRoute<LearnDetailRoute>() == true -> s.learnTitle
         destination?.hasRoute<WhyMattersRoute>() == true -> s.whyMattersTitle
         isMain -> when (state.tab) {
@@ -235,7 +232,7 @@ private fun MainShell(state: AppState) {
         floatingActionButton = {
             if (isMain && state.tab == Tab.MEDICINES) {
                 FloatingActionButton(
-                    onClick = { nav.navigate(AddMedicineRoute) },
+                    onClick = { state.openAddMedicineSheet() },
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ) {
@@ -305,10 +302,6 @@ private fun MainShell(state: AppState) {
 
             composable<SettingsRoute> {
                 SettingsScreen(state)
-            }
-
-            composable<AddMedicineRoute> {
-                AddMedicineScreen(state, onDone = { nav.navigateUp() })
             }
 
             composable<LearnDetailRoute> {

@@ -29,8 +29,8 @@ Min SDK 31 (Android 12) · target SDK 37.
 |---|---|
 | **Onboarding** | Name + language (EN / हिंदी / मराठी). Two questions, nothing else. |
 | **Today** | Needs-attention card, today's doses, next appointment, health tip |
-| **Medicines** | Add / toggle / remove medicines and reminder times |
-| **History** | Every dose, its barrier, whether the help was useful, and this week's barrier counts |
+| **Medicines** | Add / toggle medicines and reminder times; the **+** FAB opens the add form as a bottom sheet; swipe a row left to remove it |
+| **History** | Every dose, its barrier, whether the help was useful, this week's barrier counts, and a one-tap **Share summary** for a clinician |
 | **Learn** | Six plain-language cards |
 | **Why this matters** | The loop, the research question, the safety stance |
 | **Settings** | Language, theme, private mode, replay demo, reset |
@@ -69,19 +69,25 @@ Run these in order. Each maps to a PRD acceptance criterion.
 7. Close the sheet → a snackbar confirms what was logged; the dashboard card is gone.
 8. **History** → the entry shows `Barrier: It costs too much` and `Helpful: Yes`, and the
    weekly card at the top counts that barrier. It must contain no advice or score.
+   Tap **Share summary** → the Android share sheet opens with a plain-text 30-day
+   summary (counts, barriers, medicines). No permission prompt, no network.
 9. **Settings → Replay demo scenario** → resets to Ravi's story **and** opens the missed
    dose straight at the barrier question.
 10. **Kill the app from recents, relaunch** → all data is still there.
 11. **Settings → Private mode** on → medicine names are hidden on Today.
 12. **Settings → Reset all data** → confirm → onboarding returns.
+13. **Medicines** → tap **+**; the add form rises as a bottom sheet over the list (no new
+    screen, no back arrow). Save adds the medicine and the sheet closes.
+14. Swipe a medicine row left; it reveals a red **Remove** action and deletes on
+    release. There is no delete icon on the row.
 
 ### Safety checks (the ones that matter)
 
-13. Open the **COST** card → it must say *"Never stop or change a prescribed medicine on your own."*
-14. Open the **SIDE EFFECTS** card → it must never suggest stopping the medicine.
-15. Open the **DISTRESS** card → it must offer `Call 14416`, and dialling must use the
+15. Open the **COST** card → it must say *"Never stop or change a prescribed medicine on your own."*
+16. Open the **SIDE EFFECTS** card → it must never suggest stopping the medicine.
+17. Open the **DISTRESS** card → it must offer `Call 14416`, and dialling must use the
     system dialer (no permission required, no call placed automatically).
-16. Choose **"I'd rather not say"** → the app must not nag, badge, or re-ask.
+18. Choose **"I'd rather not say"** → the app must not nag, badge, or re-ask.
 
 ---
 
@@ -105,6 +111,14 @@ app/src/main/java/org/dev/healthbuddy/
 - **Material 3 Expressive** via Compose BOM 2026.09.00 (`material3:1.5.0-beta02`), which
   supplies the `MotionScheme` used for screen transitions.
 
+### Icon
+
+The launcher icon is a single adaptive icon (`res/mipmap-anydpi/ic_launcher.xml` and
+`ic_launcher_round.xml`) built from three vectors: foreground (cream heart + capsule),
+background gradient, and a monochrome layer for Android 13+ themed icons. `minSdk 31`
+means `mipmap-anydpi` always wins, so there are no density-specific bitmaps. Editable
+sources and the 512 px store art live in `branding/` and are not packaged into the APK.
+
 ### Content is data, not code paths
 
 The nine barrier responses live in `BarrierCatalog.kt` as reviewed constants
@@ -119,7 +133,8 @@ Login · backend · sync · AI advice · push notifications · telemedicine · m
 caregivers · streaks and leaderboards.
 
 Streaks in particular were rejected: punishing a user for a missed dose contradicts the
-entire premise. A missed dose is information, not failure — and it is never shown in red.
+entire premise. A missed dose is information, not failure — it is coloured by the theme's
+error role and never turned into a score or a scolding.
 
 ---
 
