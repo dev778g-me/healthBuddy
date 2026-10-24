@@ -1,6 +1,7 @@
 package org.dev.healthbuddy.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -10,9 +11,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -22,7 +26,11 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,15 +41,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Plus
 import com.composables.icons.lucide.X
 import kotlinx.coroutines.launch
 import org.dev.healthbuddy.data.AppState
+import org.dev.healthbuddy.ui.Fmt
 import org.dev.healthbuddy.ui.i18n.LocalStrings
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 private val PRESET_TIMES = listOf("08:00", "09:00", "13:00", "20:00", "21:00")
-private val HH_MM: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
 /**
  * Adding a medicine is a sheet, not a destination: the Medicines tab stays
@@ -65,10 +73,14 @@ fun AddMedicineSheet(state: AppState) {
         mutableStateOf(editing?.condition?.takeUnless { it == "General" } ?: "")
     }
     var selected by remember(editing?.id) {
-        mutableStateOf(editing?.times?.toSet() ?: setOf("08:00"))
+        mutableStateOf(editing?.times?.toSet() ?: emptySet())
     }
-    var custom by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf<String?>(null) }
+    val timePickerState = rememberTimePickerState(
+        initialHour = 8,
+        initialMinute = 0,
+        is24Hour = false
+    )
+    var showTimePicker by remember { mutableStateOf(false) }
     var closing by remember { mutableStateOf(false) }
 
     val canSave = name.isNotBlank() && selected.isNotEmpty()
@@ -93,7 +105,7 @@ fun AddMedicineSheet(state: AppState) {
                 .fillMaxWidth()
                 .imePadding()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 22.dp)
+                .padding(horizontal = 16.dp)
                 .padding(bottom = 36.dp)
         ) {
             Text(
@@ -103,6 +115,7 @@ fun AddMedicineSheet(state: AppState) {
             Spacer(Modifier.height(16.dp))
 
             OutlinedTextField(
+                shape = MaterialTheme.shapes.medium,
                 value = name,
                 onValueChange = { name = it },
                 label = { Text(s.medicineName) },
@@ -111,6 +124,8 @@ fun AddMedicineSheet(state: AppState) {
             )
             Spacer(Modifier.height(12.dp))
             OutlinedTextField(
+                shape = MaterialTheme.shapes.medium,
+
                 value = dose,
                 onValueChange = { dose = it },
                 label = { Text(s.doseAmount) },
@@ -119,6 +134,8 @@ fun AddMedicineSheet(state: AppState) {
             )
             Spacer(Modifier.height(12.dp))
             OutlinedTextField(
+                shape = MaterialTheme.shapes.medium,
+
                 value = condition,
                 onValueChange = { condition = it },
                 label = { Text(s.conditionLabel) },
@@ -135,13 +152,13 @@ fun AddMedicineSheet(state: AppState) {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 PRESET_TIMES.forEach { time ->
-                    FilterChip(
-                        selected = selected.contains(time),
-                        onClick = {
+                    ToggleButton (
+                        checked = selected.contains(time),
+                        onCheckedChange =  {
                             selected =
                                 if (selected.contains(time)) selected - time else selected + time
                         },
-                        label = { Text(time) }
+                        content  = { Text(Fmt.time(time)) }
                     )
                 }
             }
@@ -156,7 +173,7 @@ fun AddMedicineSheet(state: AppState) {
                         InputChip(
                             selected = true,
                             onClick = { selected = selected - time },
-                            label = { Text(time) },
+                            label = { Text(Fmt.time(time)) },
                             trailingIcon = {
                                 Icon(
                                     imageVector = Lucide.X,
@@ -170,50 +187,31 @@ fun AddMedicineSheet(state: AppState) {
             }
 
             Spacer(Modifier.height(14.dp))
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+            OutlinedButton(
+                onClick = { showTimePicker = true },
+                modifier = Modifier.fillMaxWidth()
             ) {
-                OutlinedTextField(
-                    value = custom,
-                    onValueChange = { custom = it },
-                    label = { Text("HH:mm") },
-                    singleLine = true,
-                    isError = error != null,
-                    modifier = Modifier.weight(1f)
+                Icon(
+                    imageVector = Lucide.Plus,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
                 )
-                OutlinedButton(
-                    onClick = {
-                        val parsed = runCatching {
-                            LocalTime.parse(custom.trim()).format(HH_MM)
-                        }.getOrNull()
-                        if (parsed != null) {
-                            selected = selected + parsed
-                            custom = ""
-                            error = null
-                        } else {
-                            error = "HH:mm"
-                        }
-                    }
-                ) { Text(s.addTime) }
-            }
-            if (error != null) {
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = s.timeFormatHint,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error
-                )
+                Spacer(Modifier.width(8.dp))
+                Text(s.addTime)
             }
 
             Spacer(Modifier.height(26.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedButton(
+
+            ButtonGroup(modifier = Modifier.fillMaxWidth(), overflowIndicator = {}) {
+                
+                clickableItem(
+                    weight = 1f,
                     onClick = { close() },
                     enabled = !closing,
-                    modifier = Modifier.weight(1f)
-                ) { Text(s.cancel) }
-                Button(
+                    label = s.cancel
+                )
+                clickableItem(
+                    weight = 1f,
                     onClick = {
                         if (editing == null) {
                             state.addMedicine(name, dose, condition, selected.toList())
@@ -224,10 +222,39 @@ fun AddMedicineSheet(state: AppState) {
                         }
                         close()
                     },
-                    enabled = canSave && !closing,
-                    modifier = Modifier.weight(1f)
-                ) { Text(s.save) }
+                    enabled =  canSave && !closing,
+                    label = s.save
+                )
             }
+
         }
+    }
+
+    if (showTimePicker) {
+        AlertDialog(
+            onDismissRequest = { showTimePicker = false },
+            title = { Text(s.addTime) },
+            text = {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    TimePicker(state = timePickerState)
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    selected = selected + "%02d:%02d".format(
+                        Locale.US,
+                        timePickerState.hour,
+                        timePickerState.minute
+                    )
+                    showTimePicker = false
+                }) { Text(s.done) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTimePicker = false }) { Text(s.cancel) }
+            }
+        )
     }
 }
