@@ -21,19 +21,22 @@ Or just hit ▶ in Android Studio.
 
 Min SDK 31 (Android 12) · target SDK 37.
 
+The full manual test plan (every feature, plus a shot list for the client demo) is in
+[`TESTING.md`](TESTING.md).
+
 ---
 
 ## What is actually built
 
 | Screen | What it does |
 |---|---|
-| **Onboarding** | Name + language (EN / हिंदी / मराठी / ଓଡ଼ିଆ). Two questions, nothing else. |
+| **Onboarding** | Name + language (EN / हिंदी / मराठी / ଓଡ଼ିଆ) + the reminder permission card. **Get started** stays disabled until notifications and exact alarms are granted (or reminders are switched off). |
 | **Today** | Taken / total progress, needs-attention card, today's doses, next appointment, health tip |
-| **Medicines** | Add, edit and toggle medicines and reminder times; the **+** FAB opens the add form as a bottom sheet, tapping a row reopens it prefilled; swipe left to remove |
+| **Medicines** | Add, edit and toggle medicines and reminder times; the **+** FAB opens the add form as a bottom sheet, tapping a row reopens it prefilled; times use the Material 3 time picker; swipe left to remove |
 | **History** | The last 30 days of doses, their barrier, whether the help was useful (answerable later), notes on any dose, this week's barrier counts, and a one-tap **Share summary** for a clinician |
 | **Learn** | Six plain-language cards |
 | **Why this matters** | The loop, the research question, the safety stance |
-| **Settings** | Language, theme, private mode, replay demo, reset |
+| **Settings** | Language, theme, reminder toggle and permission status, private mode, replay demo, reset |
 
 ## The loop
 
@@ -93,15 +96,34 @@ Run these in order. Each maps to a PRD acceptance criterion.
     and in **Share summary** under "Notes". **Edit note** changes the text. With private
     mode on, the shared note no longer names the medicine.
 
+### Reminder checks
+
+1. **Fresh install → onboarding** → the Reminders card is on and lists **Notifications**
+   and **Alarms & reminders** with **Turn on**. Grant both (the second opens the system
+   Alarms & reminders screen; come back with Back). **Get started** becomes enabled.
+   Turning the reminder switch off is the explicit opt-out and also enables Get started.
+2. **Medicines → + → Add** (under the time chips) → the Material 3 clock-dial dialog opens.
+   Pick a time, tap **Done** → a removable chip appears. No `HH:mm` typing.
+3. Set one medicine two minutes ahead, then background the app. The notification arrives at
+   that time: name and time collapsed, then time / dose / condition / call-to-action each on
+   its own line when expanded. Tap it → the app opens on **Today**.
+4. Private mode on → repeat → the notification reads **Time for your medicine**, and the
+   lock-screen public version never contains the medicine name.
+5. Log that dose in the app before/after the notification → the notification is dismissed and
+   a dose already logged at that time does not produce a stale "take it" alert.
+6. Settings → turn **Reminders** off → no further notification (alarms cancel). Turn it on →
+   alarms re-arm. Edit a medicine's time → only the new time fires.
+7. Reboot the phone (or `adb reboot`) → alarms are restored by the boot receiver.
+
 ### Safety checks (the ones that matter)
 
-18. Open the **COST** card → it must say *"Never stop or change a prescribed medicine on your own."*
-19. Open the **SIDE EFFECTS** card → it must never suggest stopping the medicine.
-20. Open the **DISTRESS** card → it must offer `Call 14416`, and dialling must use the
-    system dialer (no permission required, no call placed automatically).
-21. Choose **"I'd rather not say"** → the app must not nag, badge, or re-ask.
-22. Open the **STIGMA** card → it offers **Turn on private mode** (not a reminder shift);
-    tapping it hides medicine names and confirms in place.
+1. Open the **COST** card → it must say *"Never stop or change a prescribed medicine on your own."*
+2. Open the **SIDE EFFECTS** card → it must never suggest stopping the medicine.
+3. Open the **DISTRESS** card → it must offer `Call 14416`, and dialling must use the
+   system dialer (no permission required, no call placed automatically).
+4. Choose **"I'd rather not say"** → the app must not nag, badge, or re-ask.
+5. Open the **STIGMA** card → it offers **Turn on private mode** (not a reminder shift);
+   tapping it hides medicine names and confirms in place.
 
 ---
 
@@ -110,6 +132,8 @@ Run these in order. Each maps to a PRD acceptance criterion.
 ```
 app/src/main/java/org/dev/healthbuddy/
 ├── MainActivity.kt
+├── notifications/  ReminderScheduler.kt (exact alarms, channel, notification) ·
+│                   DoseAlarmReceiver.kt · BootReceiver.kt · ReminderPermissions.kt
 ├── data/       Store.kt (SharedPreferences + org.json) · AppState.kt (state + mutations)
 ├── domain/     Models · BarrierCatalog ★ · Education · Seed
 └── ui/         App.kt · nav/Routes.kt · theme/ · components/ · screens/ · flow/DoseFlowSheet.kt ★
@@ -143,8 +167,10 @@ safety rules in `PRD.md` §9.
 
 ## Deliberately not built
 
-Login · backend · sync · AI advice · push notifications · telemedicine · maps · community ·
+Login · backend · sync · AI advice · remote push notifications · telemedicine · maps · community ·
 caregivers · streaks and leaderboards.
+
+Local dose reminders **are** built: `AlarmManager`, offline, no server.
 
 Streaks in particular were rejected: punishing a user for a missed dose contradicts the
 entire premise. A missed dose is information, not failure — it is coloured by the theme's

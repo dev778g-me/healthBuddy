@@ -118,6 +118,9 @@ Everything else in the app exists to support this loop.
 - The barrier flow in one bottom sheet (log → barrier → support → follow-up)
 - Today progress count (taken / total) — no score, no streak
 - Optional note on any dose, included in the shared visit summary
+- Local dose reminders at each medicine time (`AlarmManager`, offline, no push)
+- Onboarding permission gate for notifications + exact alarms
+- Material 3 time picker for custom reminder times
 - Local persistence
 - 4 languages: English, हिंदी, मराठी, ଓଡ଼ିଆ (UI strings)
 - Demo scenario mode
@@ -133,7 +136,7 @@ Do not build these even if there is time. Each one is a demo risk or a safety ri
 | Login / accounts / OTP | Adds friction to every demo run |
 | Backend, API, cloud sync | Nothing to demo; everything to break |
 | AI / LLM-generated advice | Unsafe, unreviewable, and the point is *curated* responses |
-| Push/FCM notifications | Requires setup + a device that behaves. Use in-app due cards + optional local alarm |
+| Push/FCM notifications | Remote push needs a backend. **Local** `AlarmManager` reminders are in scope (§12.1) |
 | Telemedicine, video calls | Partner dependency |
 | Maps, GPS, "doctors near me" with real data | Unverified data is a safety liability. Use a static curated list |
 | Community forum / chat | Needs moderation; empty forum looks bad |
@@ -293,7 +296,7 @@ Each card: ~80 words, reading level ~grade 6, one line of "this is education, no
 
 | ID | Requirement | Acceptance |
 |---|---|---|
-| FR-1 | Onboarding: language choice and display name — deliberately two questions | One screen, persisted |
+| FR-1 | Onboarding: language, display name, and the reminder permission card | One screen; persisted; **Get started** gated on notification + alarm access (or an explicit reminder opt-out) |
 | FR-2 | Dashboard shows today's doses with time and status | Correct grouping: due now / later / done |
 | FR-3 | Dose can be logged as Taken, Missed, or Not sure | Status persists; history updates |
 | FR-4 | Logging Missed opens the barrier question | 10 options, one tap each, dismissible |
@@ -311,6 +314,9 @@ Each card: ~80 words, reading level ~grade 6, one line of "this is education, no
 | FR-16 | Reset all data | In settings/menu, with confirm |
 | FR-17 | Today shows how many doses were taken | "2 of 3 taken" + thin bar; counts only, hidden when no doses are due |
 | FR-18 | Optional note on any logged dose | Editable from History, 140 chars, included in the shared summary; private mode leaves the medicine name out |
+| FR-19 | Local reminder at each medicine time | One exact alarm per medicine × time; notification opens Today; private mode hides the medicine name and the lock screen shows a generic public version |
+| FR-20 | Onboarding asks for notification + alarm access | Two explicit permission rows; **Get started** stays disabled until both are granted (turning reminders off is an explicit opt-out) |
+| FR-21 | Custom reminder time uses a time picker | Material 3 `TimePicker` dialog, 12-hour with AM/PM, no free-text format errors |
 
 ### 11.2 Non-functional
 
@@ -346,13 +352,15 @@ Each card: ~80 words, reading level ~grade 6, one line of "this is education, no
 | Time | `java.time` (minSdk 31) | No kotlinx-datetime needed |
 | State | `mutableStateOf` inside one `AppState` holder, kept by an `AndroidViewModel` | Survives rotation/config changes. No DI library |
 | Icons | **Lucide** (`com.composables:icons-lucide` 1.1.0) | One consistent 24 px outline family instead of mixed Material glyphs. The `thelacspace:lucide-compose` artifact was evaluated and rejected: its 1.16.0 AAR ships only four compiled icons |
-| Notifications | **Not in v1** | The demo must not depend on them |
+| Notifications | **Local only** — one exact `AlarmManager` alarm per active medicine × time, re-armed by a receiver; no push, no server | Works in airplane mode and needs no backend. Exact alarms fall back to inexact if the phone refuses the permission |
 
 ### 12.2 Project structure
 
 ```
 app/src/main/java/org/dev/healthbuddy/
-├── MainActivity.kt               creates Store + AppState, setContent
+├── MainActivity.kt               creates Store + ReminderScheduler + AppState, setContent
+├── notifications/                ReminderScheduler (exact alarms + channel), DoseAlarmReceiver,
+│                                 BootReceiver, ReminderPermissions
 ├── data/
 │   ├── Store.kt                  SharedPreferences + org.json encode/decode
 │   └── AppState.kt               observable state + all mutations
@@ -375,7 +383,8 @@ app/src/main/java/org/dev/healthbuddy/
     └── flow/DoseFlowSheet.kt     ★ the whole loop in one bottom sheet
 
 app/src/main/res/
-├── drawable/                     ic_launcher_{foreground,background,monochrome}.xml + onboarding glyph
+├── drawable/                     ic_launcher_{foreground,background,monochrome}.xml, onboarding glyph,
+│                                 ic_notification.xml
 ├── mipmap-anydpi/                <adaptive-icon> wrappers (square + round); no density bitmaps, minSdk 31
 ├── values/, values-night/        theme, app name
 └── xml/                          backup / data-extraction rules
@@ -400,6 +409,8 @@ data class BarrierSupport(barrier, action: ActionType, escalation: Escalation, c
 ```
 
 Dates and times are stored as strings (`yyyy-MM-dd`, `HH:mm`) — the dataset is tiny and string comparison sorts correctly, which removes an entire class of serialization bugs.
+
+`Snapshot` also stores `remindersEnabled` (default on), so the Settings toggle survives a restart. Local alarms themselves live in `AlarmManager`, not in the JSON blob.
 
 `reminderOffsetMinutes` exists so the "I forgot" support actually *does* something: moving the reminder shifts the displayed time without changing the dose's identity (`baseTime` drives the log id).
 
@@ -442,7 +453,7 @@ Sizes: **S** ≈ <30 min, **M** ≈ 1–2 h, **L** ≈ 3–4 h.
 
 ### Phase 3 — Supporting screens
 
-- [x] `OnboardingScreen` — language, name **(M)**
+- [x] `OnboardingScreen` — language, name, reminder permission gate **(M)**
 - [x] `MedicinesScreen` + add/edit-medicine **bottom sheet** (no route) — tap a row to edit, swipe left to remove; no always-visible delete icon **(L)**
 - [x] `HistoryScreen` — day-grouped timeline with barrier chips **(M)**
 - [x] `LearnScreen` + detail **(M)**
@@ -462,7 +473,9 @@ Sizes: **S** ≈ <30 min, **M** ≈ 1–2 h, **L** ≈ 3–4 h.
 
 ### Phase 5 — Optional, only if Phase 4 is done
 
-- [ ] Local notification via `AlarmManager` — **not built** (§17 Q3 default: out of scope for v1)
+- [x] Local notification via `AlarmManager` — one exact alarm per active medicine × time, boot receiver re-arms, tap opens Today **(M)**
+- [x] Onboarding permission gate — notifications + "Alarms & reminders", Continue disabled until granted **(S)**
+- [x] Custom time entry replaced by the Material 3 `TimePicker` dialog **(S)**
 - [x] Weekly "what got in the way" summary card on History — counts only, no advice **(M)**
 - [x] **Share summary** on History — last 30 days of counts, barriers and medicines as plain text through the Android share sheet; no permission, no network, no advice **(S)**
 - [x] Haptic feedback (`HapticFeedbackType.Confirm`) + snackbar confirmation on log **(S)**
@@ -515,6 +528,7 @@ The MVP is done when **all** of these are true:
 5. Every support card matches §10.2 word-for-word.
 6. Status colours come from the theme — success for logged, error for missed — and no copy blames the user.
 7. §7 rehearsed under 90 seconds.
+8. A medicine set two minutes ahead fires a local notification on time, tapping it opens Today, and private mode keeps the name off the lock screen.
 
 ---
 
@@ -524,6 +538,6 @@ The MVP is done when **all** of these are true:
 |---|---|---|
 | Q1 | Product name on the launcher: "MyHealthBuddy" or "HealthMate"? | **HealthBuddy** — matches the package and the launcher label |
 | Q2 | Target set: Android only, or Android + iOS + Desktop? | **Android only** |
-| Q3 | Real local notifications in scope? | **No** — Phase 5 optional |
+| Q3 | Real local notifications in scope? | **Yes** — local `AlarmManager` only; remote push stays out |
 | Q4 | Hindi + Marathi + Odia, or Hindi only? | **Chrome in EN/HI/MR/OR; clinical content EN/HI** — Marathi and Odia clinical copy is not reviewed, so it falls back |
 | Q5 | Neurological condition in seed data too? | **No** — three conditions is enough for the demo |
