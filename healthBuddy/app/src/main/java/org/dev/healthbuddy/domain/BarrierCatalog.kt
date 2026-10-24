@@ -111,6 +111,44 @@ object BarrierCatalog {
             )
         ),
         BarrierSupport(
+            barrier = Barrier.STOCK_OUT,
+            action = ActionType.FIND_FACILITY,
+            escalation = Escalation.NONE,
+            callNumber = "104",
+            en = BarrierText(
+                label = "I ran out of my medicine",
+                title = "Running out is a supply problem, not a failure",
+                body = "Strips finish sooner than you expect — a refill was missed, the shop " +
+                    "had none, or the week got busy. This happens to most people. A nearby " +
+                    "PHC or Jan Aushadhi Kendra may be able to supply the same prescribed " +
+                    "medicine, and 104 can tell you what is open near you.",
+                actionLabel = "Where to get it",
+                safety = "Do not take a different medicine or change your dose to make up " +
+                    "for the missed strips. Ask your doctor or pharmacist first.",
+                bullets = listOf(
+                    "Your nearest Primary Health Centre (PHC) — take your prescription or the old strip",
+                    "Jan Aushadhi Kendra — low-cost generic medicines",
+                    "Health Helpline 104 — free guidance, 24×7"
+                )
+            ),
+            hi = BarrierText(
+                label = "मेरी दवा ख़त्म हो गई",
+                title = "दवा ख़त्म होना कोई असफलता नहीं, व्यवस्था की बात है",
+                body = "दवा की पत्तियाँ सोच से पहले ख़त्म हो जाती हैं — रिफ़िल छूट जाना, " +
+                    "दुकान पर दवा न होना, या हफ़्ता व्यस्त हो जाना। ऐसा लगभग सबके साथ होता है। " +
+                    "नज़दीकी प्राथमिक स्वास्थ्य केंद्र या जन औषधि केंद्र से वही दवा मिल सकती है, " +
+                    "और 104 बता सकता है कि आपके पास क्या खुला है।",
+                actionLabel = "दवा कहाँ से मिलेगी",
+                safety = "दवा ख़त्म होने पर कोई दूसरी दवा न लें और न ही खुराक बदलें। " +
+                    "पहले अपने डॉक्टर या फार्मासिस्ट से पूछें।",
+                bullets = listOf(
+                    "निकटतम प्राथमिक स्वास्थ्य केंद्र (PHC) — पर्चा या पुरानी पत्ती साथ ले जाएँ",
+                    "जन औषधि केंद्र — कम कीमत की जेनेरिक दवाइयाँ",
+                    "स्वास्थ्य हेल्पलाइन 104 — नि:शुल्क सलाह, 24×7"
+                )
+            )
+        ),
+        BarrierSupport(
             barrier = Barrier.SIDE_EFFECTS,
             action = ActionType.READ,
             escalation = Escalation.CLINICIAN,
@@ -210,9 +248,9 @@ object BarrierCatalog {
             en = BarrierText(
                 label = "I couldn't get to a clinic, pharmacy, or my medicine",
                 title = "Distance shouldn't decide your treatment",
-                body = "If travel, transport, or a medicine being out of stock is getting " +
-                    "in the way, there may be something closer — a primary health centre, " +
-                    "a Jan Aushadhi store, or a phone consultation.",
+                body = "If travel or transport is getting in the way, there may be something " +
+                    "closer — a primary health centre, a Jan Aushadhi store, or a phone " +
+                    "consultation.",
                 actionLabel = "Find something closer",
                 bullets = listOf(
                     "Your nearest Primary Health Centre (PHC)",
@@ -223,9 +261,8 @@ object BarrierCatalog {
             hi = BarrierText(
                 label = "क्लिनिक, फार्मेसी या दवा तक नहीं पहुँच सका / सकी",
                 title = "दूरी को आपका इलाज तय नहीं करना चाहिए",
-                body = "अगर सफ़र, वाहन या दवा का स्टॉक ख़त्म होना रुकावट है, तो कुछ " +
-                    "करीब हो सकता है — प्राथमिक स्वास्थ्य केंद्र, जन औषधि केंद्र, " +
-                    "या फ़ोन पर परामर्श।",
+                body = "अगर सफ़र या वाहन रुकावट है, तो कुछ करीब हो सकता है — प्राथमिक " +
+                    "स्वास्थ्य केंद्र, जन औषधि केंद्र, या फ़ोन पर परामर्श।",
                 actionLabel = "करीब का विकल्प खोजें",
                 bullets = listOf(
                     "आपका निकटतम प्राथमिक स्वास्थ्य केंद्र (PHC)",

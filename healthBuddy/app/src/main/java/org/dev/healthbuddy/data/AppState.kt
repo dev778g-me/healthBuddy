@@ -135,6 +135,9 @@ class AppState(private val store: Store) {
     // ---- dose logs --------------------------------------------------------
 
     fun logDose(slot: DoseSlot, status: DoseStatus) {
+        // Re-logging a dose resets the barrier/follow-up, but never silently
+        // throws away a note the user typed.
+        val priorNote = logs.firstOrNull { it.id == slot.id }?.note
         val entry = DoseLog(
             id = slot.id,
             medicineId = slot.medicine.id,
@@ -143,6 +146,7 @@ class AppState(private val store: Store) {
             status = status,
             barrier = null,
             helpful = null,
+            note = priorNote,
             loggedAt = System.currentTimeMillis()
         )
         logs = logs.filterNot { it.id == entry.id } + entry
@@ -156,6 +160,15 @@ class AppState(private val store: Store) {
 
     fun setHelpful(logId: String, value: Helpful) {
         logs = logs.map { if (it.id == logId) it.copy(helpful = value) else it }
+        persist()
+    }
+
+    /** Free-text note on a logged dose. Blank clears the note. */
+    fun setNote(logId: String, note: String) {
+        val clean = note.trim().take(140)
+        logs = logs.map {
+            if (it.id == logId) it.copy(note = clean.ifBlank { null }) else it
+        }
         persist()
     }
 

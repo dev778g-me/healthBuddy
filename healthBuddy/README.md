@@ -28,9 +28,9 @@ Min SDK 31 (Android 12) · target SDK 37.
 | Screen | What it does |
 |---|---|
 | **Onboarding** | Name + language (EN / हिंदी / मराठी / ଓଡ଼ିଆ). Two questions, nothing else. |
-| **Today** | Needs-attention card, today's doses, next appointment, health tip |
+| **Today** | Taken / total progress, needs-attention card, today's doses, next appointment, health tip |
 | **Medicines** | Add, edit and toggle medicines and reminder times; the **+** FAB opens the add form as a bottom sheet, tapping a row reopens it prefilled; swipe left to remove |
-| **History** | The last 30 days of doses, their barrier, whether the help was useful (answerable later), this week's barrier counts, and a one-tap **Share summary** for a clinician |
+| **History** | The last 30 days of doses, their barrier, whether the help was useful (answerable later), notes on any dose, this week's barrier counts, and a one-tap **Share summary** for a clinician |
 | **Learn** | Six plain-language cards |
 | **Why this matters** | The loop, the research question, the safety stance |
 | **Settings** | Language, theme, private mode, replay demo, reset |
@@ -42,7 +42,7 @@ REMIND      a dose comes due
   ↓
 LOG         Taken / Missed / Not sure
   ↓
-IDENTIFY    "What made it difficult today?" — 9 one-tap options
+IDENTIFY    "What made it difficult today?" — 10 one-tap options
   ↓
 SUPPORT     a reviewed, barrier-specific next step
   ↓
@@ -64,7 +64,7 @@ Run these in order. Each maps to a PRD acceptance criterion.
 3. **Settings → Language → ଓଡ଼ିଆ** → chrome is in Odia; barrier and education cards
    stay in English by design (unreviewed clinical copy is never machine-translated).
 4. **Needs attention** card is visible (yesterday's Metformin was seeded as missed).
-5. Tap it → *"What made it difficult today?"* appears with 9 options. The phone gives
+5. Tap it → *"What made it difficult today?"* appears with 10 options. The phone gives
    a confirm haptic.
 6. Tap **"It costs too much"** → support card with body, care bullets, amber safety note.
 7. Tap **Done** → *"Was this helpful?"* → tap **Yes**.
@@ -74,7 +74,7 @@ Run these in order. Each maps to a PRD acceptance criterion.
    An entry with a barrier but no answer shows **Yes / Not sure / No** chips; tapping one
    saves it without opening the flow.
    Tap **Share summary** → the Android share sheet opens with a plain-text 30-day
-   summary (counts, barriers, medicines). No permission prompt, no network.
+   summary (counts, barriers, notes, medicines). No permission prompt, no network.
 10. **Settings → Replay demo scenario** → resets to Ravi's story **and** opens the missed
    dose straight at the barrier question.
 11. **Kill the app from recents, relaunch** → all data is still there.
@@ -87,14 +87,20 @@ Run these in order. Each maps to a PRD acceptance criterion.
 15. Swipe a medicine row left; it reveals a red **Remove** action and deletes on
     release. There is no delete icon on the row.
 
+16. **Today** shows "0 of 4 taken" before anything is logged. Log one dose as taken →
+    it reads "1 of 4 taken" and the thin bar fills by a quarter. No score, no streak.
+17. **History → Add a note** on an entry → type and Save. The note shows on the entry
+    and in **Share summary** under "Notes". **Edit note** changes the text. With private
+    mode on, the shared note no longer names the medicine.
+
 ### Safety checks (the ones that matter)
 
-16. Open the **COST** card → it must say *"Never stop or change a prescribed medicine on your own."*
-17. Open the **SIDE EFFECTS** card → it must never suggest stopping the medicine.
-18. Open the **DISTRESS** card → it must offer `Call 14416`, and dialling must use the
+18. Open the **COST** card → it must say *"Never stop or change a prescribed medicine on your own."*
+19. Open the **SIDE EFFECTS** card → it must never suggest stopping the medicine.
+20. Open the **DISTRESS** card → it must offer `Call 14416`, and dialling must use the
     system dialer (no permission required, no call placed automatically).
-19. Choose **"I'd rather not say"** → the app must not nag, badge, or re-ask.
-20. Open the **STIGMA** card → it offers **Turn on private mode** (not a reminder shift);
+21. Choose **"I'd rather not say"** → the app must not nag, badge, or re-ask.
+22. Open the **STIGMA** card → it offers **Turn on private mode** (not a reminder shift);
     tapping it hides medicine names and confirms in place.
 
 ---
@@ -129,7 +135,7 @@ sources and the 512 px store art live in `branding/` and are not packaged into t
 
 ### Content is data, not code paths
 
-The nine barrier responses live in `BarrierCatalog.kt` as reviewed constants
+The ten barrier responses live in `BarrierCatalog.kt` as reviewed constants
 (English + Hindi). They are never generated at runtime. Every card obeys the
 safety rules in `PRD.md` §9.
 

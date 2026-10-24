@@ -89,6 +89,7 @@ class Store(context: Context) {
                     put("status", l.status.name)
                     put("barrier", l.barrier?.name ?: JSONObject.NULL)
                     put("helpful", l.helpful?.name ?: JSONObject.NULL)
+                    put("note", l.note ?: JSONObject.NULL)
                     put("loggedAt", l.loggedAt)
                 })
             }
@@ -139,6 +140,7 @@ class Store(context: Context) {
                     ?.let { b -> runCatching { Barrier.valueOf(b) }.getOrNull() },
                 helpful = l.optString("helpful").takeIf { it.isNotBlank() && it != "null" }
                     ?.let { h -> runCatching { Helpful.valueOf(h) }.getOrNull() },
+                note = l.optString("note").takeIf { it.isNotBlank() && it != "null" },
                 loggedAt = l.optLong("loggedAt", 0L)
             )
         },

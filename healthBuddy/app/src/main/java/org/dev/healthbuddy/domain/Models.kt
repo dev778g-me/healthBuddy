@@ -1,9 +1,10 @@
 package org.dev.healthbuddy.domain
 
-/** The nine reasons a dose or a visit can be missed. See PRD §10.2. */
+/** The ten reasons a dose or a visit can be missed. See PRD §10.2. */
 enum class Barrier {
     FORGOT,
     COST,
+    STOCK_OUT,
     SIDE_EFFECTS,
     CONFUSED,
     STIGMA,
@@ -41,6 +42,8 @@ data class DoseLog(
     val status: DoseStatus,
     val barrier: Barrier? = null,
     val helpful: Helpful? = null,
+    /** Optional note the user typed about this dose — never generated. */
+    val note: String? = null,
     val loggedAt: Long = 0L
 )
 

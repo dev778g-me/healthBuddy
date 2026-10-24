@@ -58,7 +58,7 @@ The app is the hypothesis made tangible. Do not claim clinical effectiveness —
       ↓
    LOG             user taps Taken / Missed / Not sure
       ↓
-   IDENTIFY        "What made it difficult today?"  (one tap, 9 options)
+   IDENTIFY        "What made it difficult today?"  (one tap, 10 options)
       ↓
    SUPPORT         barrier-specific card + one suggested next action
       ↓
@@ -116,6 +116,8 @@ Everything else in the app exists to support this loop.
 
 - 7 screens: Onboarding, Dashboard, Medicines, History, Learn, Why it matters, Settings
 - The barrier flow in one bottom sheet (log → barrier → support → follow-up)
+- Today progress count (taken / total) — no score, no streak
+- Optional note on any dose, included in the shared visit summary
 - Local persistence
 - 4 languages: English, हिंदी, मराठी, ଓଡ଼ିଆ (UI strings)
 - Demo scenario mode
@@ -166,7 +168,7 @@ These are enforced in content, not in code, but they constrain every string writ
 
 ## 10. Content specification — barrier catalog
 
-This is the product's actual IP. Nine entries. Each is a data class, not a screen.
+This is the product's actual IP. Ten entries. Each is a data class, not a screen.
 
 ### 10.1 Schema
 
@@ -183,7 +185,7 @@ data class BarrierSupport(
 )
 ```
 
-### 10.2 The nine barriers
+### 10.2 The ten barriers
 
 **1. `FORGOT` — "I simply forgot"**
 - Title: *Forgetting is normal — let's make it easier*
@@ -199,56 +201,63 @@ data class BarrierSupport(
 - Escalation: clinician
 - Safety: *Never stop or change a prescribed medicine on your own. Speak to your doctor or pharmacist first.*
 
-**3. `SIDE_EFFECTS` — "I felt unwell, or was worried about side effects"**
+**3. `STOCK_OUT` — "I ran out of my medicine"**
+- Title: *Running out is a supply problem, not a failure*
+- Body: Strips finish sooner than you expect — a refill was missed, the shop had none, or the week got busy. This happens to most people. A nearby PHC or Jan Aushadhi Kendra may be able to supply the same prescribed medicine, and 104 can tell you what is open near you.
+- Action: **Where to get it** → `FIND_FACILITY` (labelled list + Call 104)
+- Escalation: none
+- Safety: *Do not take a different medicine or change your dose to make up for the missed strips. Ask your doctor or pharmacist first.*
+
+**4. `SIDE_EFFECTS` — "I felt unwell, or was worried about side effects"**
 - Title: *Side effects should be reported, not endured silently*
 - Body: If a medicine is making you feel unwell — or you're worried it might — that is important information for your doctor, not something to work out alone. Note what you felt and when, and take it to your next visit.
 - Action: **What to note down** → `READ`
 - Escalation: clinician
 - Safety: *Do not stop the medicine on your own. If you have trouble breathing, swelling, chest pain, or severe dizziness, seek urgent care now.*
 
-**4. `CONFUSED` — "I didn't understand how to take it"**
+**5. `CONFUSED` — "I didn't understand how to take it"**
 - Title: *Let's make the instructions clear*
 - Body: Instructions get confusing — different timings, before or after food, tablets that look alike. Your pharmacist can explain this in your own language in under a minute, and it's a completely normal thing to ask.
 - Action: **What to ask your pharmacist** → `READ`
 - Escalation: none
 - Safety: —
 
-**5. `STIGMA` — "I felt embarrassed, or worried what people would think"**
+**6. `STIGMA` — "I felt embarrassed, or worried what people would think"**
 - Title: *Your treatment is private — and you're not alone*
-- Body: Many people delay medicines because of what others might think. Your health information stays on this device, and you can hide medicine names from this screen.
+- Body: Many people delay medicines because of what others might think. Your health information stays on this device, and you can hide medicine names from this screen whenever you need to.
 - Action: **Turn on private mode** → `PRIVATE_MODE`
 - Escalation: none
 - Safety: —
 
-**6. `ACCESS` — "I couldn't get to a clinic, pharmacy, or my medicine"**
+**7. `ACCESS` — "I couldn't get to a clinic, pharmacy, or my medicine"**
 - Title: *Distance shouldn't decide your treatment*
-- Body: If travel, transport, or a medicine being out of stock is getting in the way, there may be something closer — a primary health centre, a Jan Aushadhi store, or a phone consultation.
+- Body: If travel or transport is getting in the way, there may be something closer — a primary health centre, a Jan Aushadhi store, or a phone consultation.
 - Action: **Find something closer** → `FIND_FACILITY`
 - Escalation: none
 - Safety: —
 
-**7. `DISTRESS` — "I was feeling low, anxious, or alone"**
+**8. `DISTRESS` — "I was feeling low, anxious, or alone"**
 - Title: *Looking after your mind is part of looking after your health*
 - Body: When you're exhausted or overwhelmed, taking medicine can feel impossible. That is worth telling someone — a clinician, or a helpline that is free and confidential.
 - Action: **Call a helpline** → `CALL` (14416)
 - Escalation: crisis
 - Safety: *If you are having thoughts of harming yourself, please call **14416** (Tele-MANAS, free, 24×7) or your local emergency number now.*
 
-**8. `OTHER` — "Something else"**
+**9. `OTHER` — "Something else"**
 - Title: *Thanks for telling us*
 - Body: Whatever it was, it's worth mentioning at your next visit. Even a small difficulty is useful information for your doctor.
 - Action: **What to mention** → `READ`
 - Escalation: none
 - Safety: —
 
-**9. `PREFER_NOT_TO_SAY` — "I'd rather not say"**
+**10. `PREFER_NOT_TO_SAY` — "I'd rather not say"**
 - Title: *That's completely fine*
 - Body: You don't have to explain. Your dose has been recorded and you can carry on. We'll be here if you ever want to share.
 - Action: none
 - Escalation: none
 - Safety: —
 
-> **Design note:** entries 8 and 9 exist so the question is never a trap. Never re-ask, never badge it, never show "you skipped the question".
+> **Design note:** entries 9 and 10 exist so the question is never a trap. Never re-ask, never badge it, never show "you skipped the question".
 
 ### 10.3 Education content (6 cards)
 
@@ -287,7 +296,7 @@ Each card: ~80 words, reading level ~grade 6, one line of "this is education, no
 | FR-1 | Onboarding: language choice and display name — deliberately two questions | One screen, persisted |
 | FR-2 | Dashboard shows today's doses with time and status | Correct grouping: due now / later / done |
 | FR-3 | Dose can be logged as Taken, Missed, or Not sure | Status persists; history updates |
-| FR-4 | Logging Missed opens the barrier question | 9 options, one tap each, dismissible |
+| FR-4 | Logging Missed opens the barrier question | 10 options, one tap each, dismissible |
 | FR-5 | Selecting a barrier shows the support card | Copy matches §10.2 exactly; safety note visible when defined |
 | FR-6 | Support card action does something visible | Adjust → +15/30/60 chips; Facility → labelled care list + 104 call; Call → dial intent; Read → labelled checklist; Privacy → turns on private mode |
 | FR-7 | Follow-up asks "Was this helpful?" with 3 answers | Answer stored on the log entry |
@@ -300,6 +309,8 @@ Each card: ~80 words, reading level ~grade 6, one line of "this is education, no
 | FR-14 | Language switchable at runtime | EN / HI / MR / OR, no restart needed |
 | FR-15 | Data persists across restart | JSON blob reload |
 | FR-16 | Reset all data | In settings/menu, with confirm |
+| FR-17 | Today shows how many doses were taken | "2 of 3 taken" + thin bar; counts only, hidden when no doses are due |
+| FR-18 | Optional note on any logged dose | Editable from History, 140 chars, included in the shared summary; private mode leaves the medicine name out |
 
 ### 11.2 Non-functional
 
@@ -347,7 +358,7 @@ app/src/main/java/org/dev/healthbuddy/
 │   └── AppState.kt               observable state + all mutations
 ├── domain/
 │   ├── Models.kt                 Medicine, DoseLog, DoseSlot, Tab, enums
-│   ├── BarrierCatalog.kt         ★ the 9 reviewed support cards (EN + HI)
+│   ├── BarrierCatalog.kt         ★ the 10 reviewed support cards (EN + HI)
 │   ├── Education.kt              6 learning cards (EN + HI)
 │   └── Seed.kt                   Ravi's demo data + rotating tips
 └── ui/
@@ -376,13 +387,13 @@ docs/                             one-slide.svg + one-slide.md (architecture, lo
 ### 12.3 Data model
 
 ```kotlin
-enum class Barrier { FORGOT, COST, SIDE_EFFECTS, CONFUSED, STIGMA, ACCESS, DISTRESS, OTHER, PREFER_NOT_TO_SAY }
+enum class Barrier { FORGOT, COST, STOCK_OUT, SIDE_EFFECTS, CONFUSED, STIGMA, ACCESS, DISTRESS, OTHER, PREFER_NOT_TO_SAY }
 enum class DoseStatus { PENDING, TAKEN, MISSED, UNSURE }
 enum class Helpful { YES, NOT_SURE, NO }
 enum class Lang { EN, HI, MR, OR }
 
 data class Medicine(id, name, dose, condition, times: List<String>, active: Boolean, reminderOffsetMinutes: Int)
-data class DoseLog(id, medicineId, date, time, status, barrier: Barrier?, helpful: Helpful?, loggedAt: Long)
+data class DoseLog(id, medicineId, date, time, status, barrier: Barrier?, helpful: Helpful?, note: String?, loggedAt: Long)
 data class DoseSlot(medicine, date, time, baseTime, log)   // id = medicineId|date|baseTime
 
 data class BarrierSupport(barrier, action: ActionType, escalation: Escalation, callNumber, en: BarrierText, hi: BarrierText)
@@ -416,7 +427,7 @@ Sizes: **S** ≈ <30 min, **M** ≈ 1–2 h, **L** ≈ 3–4 h.
 ### Phase 1 — Domain (no UI)
 
 - [x] `Models.kt` — enums + data classes **(S)**
-- [x] `BarrierCatalog.kt` — all 9 entries, copy verbatim from §10.2 **(L)**
+- [x] `BarrierCatalog.kt` — all 10 entries, copy verbatim from §10.2 **(L)**
 - [x] `Education.kt` — 6 cards **(M)**
 - [x] `Seed.kt` — medicines, appointments, tips, pre-seeded missed dose **(S)**
 - [x] `Repository.kt` — JSON read/write, schema version **(M)**

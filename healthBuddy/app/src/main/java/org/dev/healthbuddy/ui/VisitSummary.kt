@@ -44,6 +44,11 @@ object VisitSummary {
                     .thenBy { it.first.ordinal }
             )
 
+        // Only what the user typed. Private mode keeps the medicine name off the page.
+        val noted = inWindow
+            .filter { !it.note.isNullOrBlank() }
+            .sortedByDescending { it.date + it.time }
+
         val period = "${from.format(DATE)} – ${today.format(DATE)}"
 
         return buildString {
@@ -66,6 +71,18 @@ object VisitSummary {
                 appendLine("${s.summaryBarriers}:")
                 barriers.forEach { (barrier, count) ->
                     appendLine("  • ${BarrierCatalog.of(barrier).text(state.lang).label} — $count")
+                }
+            }
+
+            if (noted.isNotEmpty()) {
+                appendLine()
+                appendLine("${s.summaryNotes}:")
+                noted.forEach { log ->
+                    val day = runCatching { LocalDate.parse(log.date).format(DATE) }
+                        .getOrDefault(log.date)
+                    val who = if (state.privateMode) "" else
+                        "${state.medicineName(log.medicineId)} · "
+                    appendLine("  • $day ${Fmt.time(log.time)} — $who${log.note}")
                 }
             }
 

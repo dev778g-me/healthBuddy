@@ -26,7 +26,7 @@
     <circle cx="92" cy="440" r="20" fill="#1F6F5C"/>
     <text x="92" y="445.5" font-size="15" font-weight="700" fill="#FFFCF3" text-anchor="middle">3</text>
     <text x="132" y="435" font-size="20" font-weight="700" fill="#16342C">IDENTIFY</text>
-    <text x="132" y="460" font-size="14" fill="#5A6661">&#8220;What made it difficult today?&#8221; &#8212; nine one-tap options</text>
+    <text x="132" y="460" font-size="14" fill="#5A6661">&#8220;What made it difficult today?&#8221; &#8212; ten one-tap options</text>
 
     <circle cx="92" cy="544" r="20" fill="#1F6F5C"/>
     <text x="92" y="549.5" font-size="15" font-weight="700" fill="#FFFCF3" text-anchor="middle">4</text>
@@ -63,7 +63,7 @@
 
   <g font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#22332D">
     <circle cx="846" cy="604" r="4" fill="#F2B84B"/>
-    <text x="864" y="609">Asks why, not just when &#8212; nine barrier options, one tap each</text>
+    <text x="864" y="609">Asks why, not just when &#8212; ten barrier options, one tap each</text>
 
     <circle cx="846" cy="640" r="4" fill="#F2B84B"/>
     <text x="864" y="645">Answers with a reviewed next step, never a score or a streak</text>

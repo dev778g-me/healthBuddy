@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -19,16 +20,26 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +59,7 @@ import com.composables.icons.lucide.Trash2
 import org.dev.healthbuddy.data.AppState
 import org.dev.healthbuddy.domain.Barrier
 import org.dev.healthbuddy.domain.BarrierCatalog
+import org.dev.healthbuddy.domain.DoseLog
 import org.dev.healthbuddy.domain.Helpful
 import org.dev.healthbuddy.domain.Lang
 import org.dev.healthbuddy.domain.Medicine
@@ -224,6 +236,7 @@ fun HistoryScreen(
         .filter { it.date >= since }
         .groupBy { it.date }
     val weekly = state.barrierCountsThisWeek()
+    var noteTarget by remember { mutableStateOf<DoseLog?>(null) }
 
     if (grouped.isEmpty()) {
         EmptyState(
@@ -328,6 +341,14 @@ fun HistoryScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+                    if (log.note != null) {
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            text = "${s.noteLabel}: ${log.note}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                     if (log.barrier != null && log.helpful == null) {
                         Spacer(Modifier.height(10.dp))
                         Text(
@@ -359,11 +380,94 @@ fun HistoryScreen(
                             color = MaterialTheme.colorScheme.tertiary
                         )
                     }
+                    Spacer(Modifier.height(2.dp))
+                    TextButton(
+                        onClick = { noteTarget = log },
+                        contentPadding = PaddingValues(0.dp),
+                        // Without the date/time this link is identical on every card.
+                        modifier = Modifier.semantics {
+                            contentDescription =
+                                "${if (log.note == null) s.addNote else s.editNote}, " +
+                                    "${Fmt.dayLabel(log.date, s)} ${Fmt.time(log.time)}"
+                        }
+                    ) {
+                        Text(
+                            text = if (log.note == null) s.addNote else s.editNote,
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
                 }
             }
         }
     }
+
+    noteTarget?.let { log ->
+        NoteSheet(log = log, state = state, onDismiss = { noteTarget = null })
+    }
 }
+
+/**
+ * A note is the user's own words about a dose — the app never fills it in.
+ * It shows up in History and in the shared visit summary.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NoteSheet(log: DoseLog, state: AppState, onDismiss: () -> Unit) {
+    val s = LocalStrings.current
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var text by remember(log.id) { mutableStateOf(log.note.orEmpty()) }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        shape = MaterialTheme.shapes.extraLarge,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .imePadding()
+                .padding(horizontal = 22.dp)
+                .padding(bottom = 32.dp)
+        ) {
+            Text(
+                text = if (log.note == null) s.addNote else s.editNote,
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = s.noteBody,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(16.dp))
+            OutlinedTextField(
+                value = text,
+                onValueChange = { if (it.length <= MAX_NOTE) text = it },
+                placeholder = { Text(s.noteHint) },
+                minLines = 3,
+                maxLines = 5,
+                supportingText = { Text("${text.length}/$MAX_NOTE") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(16.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                TextButton(onClick = onDismiss, modifier = Modifier.weight(1f)) {
+                    Text(s.cancel)
+                }
+                Button(
+                    onClick = {
+                        state.setNote(log.id, text)
+                        onDismiss()
+                    },
+                    modifier = Modifier.weight(1f)
+                ) { Text(s.save) }
+            }
+        }
+    }
+}
+
+private const val MAX_NOTE = 140
 
 /**
  * The research question made visible: counts of what got in the way, nothing else.
