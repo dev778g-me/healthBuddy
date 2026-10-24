@@ -276,22 +276,26 @@ private fun DoseCard(
         },
         trailingContent = statusPill,
         supportingContent = {
-            Text(
-                text = if (state.privateMode) slot.medicine.condition
-                else "${slot.medicine.dose} · ${slot.medicine.condition}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (slot.status == DoseStatus.MISSED && barrier != null) {
-                Spacer(Modifier.height(4.dp))
+            Column {
                 Text(
-                    text = "${s.identified}: " +
-                        BarrierCatalog.of(barrier).text(state.lang).label,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = if (state.privateMode) slot.medicine.condition
+                    else "${slot.medicine.dose} · ${slot.medicine.condition}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
+                if (slot.status == DoseStatus.MISSED && barrier != null) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = "${s.identified}: " +
+                            BarrierCatalog.of(barrier).text(state.lang).label,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     ) {

@@ -64,8 +64,9 @@ class ReminderScheduler(context: Context) {
 
                 val scheduled = runCatching {
                     if (ReminderPermissions.exactAlarmsEnabled(appContext)) {
-                        alarms.setExactAndAllowWhileIdle(
-                            AlarmManager.RTC_WAKEUP, triggerAt, pending
+                        val showIntent = openAppPendingIntent()
+                        alarms.setAlarmClock(
+                            AlarmManager.AlarmClockInfo(triggerAt, showIntent), pending
                         )
                     } else {
                         // Never brick reminders on a phone that will not grant
@@ -81,9 +82,39 @@ class ReminderScheduler(context: Context) {
         prefs.edit().putStringSet(KEY_IDS, ids).apply()
     }
 
+    fun scheduleTestAlarm(medicine: Medicine, secondsFromNow: Int = 10) {
+        ensureChannel()
+        val baseTime = medicine.times.firstOrNull() ?: "08:00"
+        val id = 999999
+        val pending = alarmPendingIntent(id, medicine.id, baseTime, isTest = true)
+        val triggerAt = System.currentTimeMillis() + (secondsFromNow * 1000L)
+
+        if (ReminderPermissions.exactAlarmsEnabled(appContext)) {
+            val showIntent = openAppPendingIntent()
+            alarms.setAlarmClock(AlarmManager.AlarmClockInfo(triggerAt, showIntent), pending)
+        } else {
+            alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending)
+        }
+    }
+
     fun cancelAll() {
         prefs.getStringSet(KEY_IDS, emptySet()).orEmpty().forEach { raw ->
-            raw.toIntOrNull()?.let { alarms.cancel(alarmPendingIntent(it)) }
+            raw.toIntOrNull()?.let { id ->
+                val intent = Intent(appContext, DoseAlarmReceiver::class.java).apply {
+                    action = ACTION_DOSE
+                    data = Uri.parse("healthbuddy://dose/$id")
+                }
+                val pending = PendingIntent.getBroadcast(
+                    appContext,
+                    id,
+                    intent,
+                    PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+                )
+                if (pending != null) {
+                    alarms.cancel(pending)
+                    pending.cancel()
+                }
+            }
         }
         prefs.edit().remove(KEY_IDS).apply()
     }
@@ -112,8 +143,9 @@ class ReminderScheduler(context: Context) {
 
         val builder = NotificationCompat.Builder(appContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setCategory(NotificationCompat.CATEGORY_REMINDER)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setAutoCancel(true)
             .setContentIntent(openAppPendingIntent())
 
@@ -160,14 +192,21 @@ class ReminderScheduler(context: Context) {
 
     fun ensureChannel() {
         val manager = appContext.getSystemService(NotificationManager::class.java)
+        // Clean up legacy v1 channel
+        manager.deleteNotificationChannel("dose_reminders")
+
         if (manager.getNotificationChannel(CHANNEL_ID) != null) return
         val s = Store(appContext).load().lang.strings()
         manager.createNotificationChannel(
             NotificationChannel(
                 CHANNEL_ID,
                 s.remindersTitle,
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply { description = s.remindersBody }
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = s.remindersBody
+                enableVibration(true)
+                enableLights(true)
+            }
         )
     }
 
@@ -193,7 +232,8 @@ class ReminderScheduler(context: Context) {
     private fun alarmPendingIntent(
         id: Int,
         medicineId: String? = null,
-        baseTime: String? = null
+        baseTime: String? = null,
+        isTest: Boolean = false
     ): PendingIntent {
         val intent = Intent(appContext, DoseAlarmReceiver::class.java).apply {
             action = ACTION_DOSE
@@ -201,6 +241,9 @@ class ReminderScheduler(context: Context) {
             if (medicineId != null && baseTime != null) {
                 putExtra(EXTRA_MEDICINE_ID, medicineId)
                 putExtra(EXTRA_BASE_TIME, baseTime)
+            }
+            if (isTest) {
+                putExtra(EXTRA_IS_TEST, true)
             }
         }
         return PendingIntent.getBroadcast(
@@ -215,8 +258,9 @@ class ReminderScheduler(context: Context) {
         const val EXTRA_OPEN_TODAY = "org.dev.healthbuddy.OPEN_TODAY"
         const val EXTRA_MEDICINE_ID = "org.dev.healthbuddy.MEDICINE_ID"
         const val EXTRA_BASE_TIME = "org.dev.healthbuddy.BASE_TIME"
+        const val EXTRA_IS_TEST = "org.dev.healthbuddy.IS_TEST"
 
-        private const val CHANNEL_ID = "dose_reminders"
+        private const val CHANNEL_ID = "dose_reminders_v2"
         private const val NOTIFICATION_TAG = "dose_reminder"
         private const val ACTION_DOSE = "org.dev.healthbuddy.action.DOSE_ALARM"
         private const val PREFS = "reminder_alarms"

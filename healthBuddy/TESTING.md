@@ -10,13 +10,13 @@ Tick every box on a **clean install**, top to bottom. If something fails, record
 
 ## 0. Pre-flight
 
-- [ ] **0.1** Build + install: `cd healthBuddy && ./gradlew :app:installDebug`
-- [ ] **0.2** Clean state: `adb shell pm clear org.dev.healthbuddy`
+- [x] **0.1** Build + install: `cd healthBuddy && ./gradlew :app:installDebug`
+- [x] **0.2** Clean state: `adb shell pm clear org.dev.healthbuddy`
       (or uninstall + reinstall; this removes onboarding and permissions)
-- [ ] **0.3** Phone unlocked, Do Not Disturb **off**, media volume up
-- [ ] **0.4** Battery: Settings → Apps → HealthBuddy → Battery → **Unrestricted**
+- [x] **0.3** Phone unlocked, Do Not Disturb **off**, media volume up
+- [x] **0.4** Battery: Settings → Apps → HealthBuddy → Battery → **Unrestricted**
       (Xiaomi/Oppo/Realme: also enable **Autostart**)
-- [ ] **0.5** Note device + Android version in §15
+- [x] **0.5** Note device + Android version in §15
 
 Seed data after install: **Metformin 8:00 AM & 8:00 PM, Amlodipine 9:00 AM,
 Sertraline 9:00 PM** — 4 doses today. Yesterday's Metformin 8:00 PM is pre-seeded
