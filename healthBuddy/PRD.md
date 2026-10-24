@@ -325,11 +325,11 @@ Each card: ~80 words, reading level ~grade 6, one line of "this is education, no
 | Concern | Decision | Rationale |
 |---|---|---|
 | UI | Jetpack Compose, single Activity | One module, no fragments |
-| Design system | **Material 3 Expressive** (`androidx.compose.material3` 1.4.0, pinned explicitly) | Expressive type scale + shape tokens; 1.4.0 is the first *stable* release with them. A beta would risk runtime mismatch against Compose BOM 2026.02.01 |
-| Navigation | Sealed `Route` + `when`, plus a `Tab` enum | No NavHost, no nav-compose dependency, no version risk |
+| Design system | **Material 3 Expressive** (`androidx.compose.material3` 1.5.0-beta02, via Compose BOM 2026.09.00) | Expressive type scale, shape tokens and `MotionScheme` (nav transitions use `defaultSpatialSpec` / `fastSpatialSpec`). The BOM pins Compose 1.12.1, which satisfies material3's 1.12.0 floor |
+| Navigation | **Navigation Compose 2.10.2** with type-safe `@Serializable` destinations, plus a `Tab` enum for the four main tabs | One `NavHost` owns the back stack, predictive-back transitions and per-destination chrome. Tabs are state inside `MainRoute`, not destinations |
 | Persistence | One JSON blob in `SharedPreferences`, built with `org.json` | Zero dependencies. No Room/KSP/kapt — critical because AGP 9 uses built-in Kotlin and annotation processors are friction |
 | Time | `java.time` (minSdk 31) | No kotlinx-datetime needed |
-| State | `mutableStateOf` inside one `AppState` holder | No ViewModel/DI library |
+| State | `mutableStateOf` inside one `AppState` holder, kept by an `AndroidViewModel` | Survives rotation/config changes. No DI library |
 | Icons | `material-icons-core` (pinned explicitly) | `material-icons-extended` is deprecated in recent BOMs and materially bloats the APK |
 | Notifications | **Not in v1** | The demo must not depend on them |
 
@@ -342,12 +342,15 @@ app/src/main/java/org/dev/healthbuddy/
 │   ├── Store.kt                  SharedPreferences + org.json encode/decode
 │   └── AppState.kt               observable state + all mutations
 ├── domain/
-│   ├── Models.kt                 Medicine, DoseLog, DoseSlot, Route, Tab, enums
+│   ├── Models.kt                 Medicine, DoseLog, DoseSlot, Tab, enums
 │   ├── BarrierCatalog.kt         ★ the 9 reviewed support cards (EN + HI)
 │   ├── Education.kt              6 learning cards (EN + HI)
 │   └── Seed.kt                   Ravi's demo data + rotating tips
 └── ui/
-    ├── App.kt                    root: onboarding vs shell, nav, FAB, sheet host
+    ├── App.kt                    root: onboarding vs shell, ONE Scaffold + animated top bar,
+    │                             NavHost, FAB, snackbar, sheet host
+    ├── nav/Routes.kt             @Serializable destinations (Main, Settings, AddMedicine,
+    │                             LearnDetail, WhyMatters)
     ├── Format.kt                 time / relative-date formatting
     ├── i18n/Strings.kt           EN / HI / MR chrome + LocalStrings
     ├── theme/                    Color.kt, Type.kt (expressive scale), Theme.kt
@@ -392,59 +395,56 @@ Sizes: **S** ≈ <30 min, **M** ≈ 1–2 h, **L** ≈ 3–4 h.
 
 ### Phase 0 — Scaffold (blocker)
 
-- [x] Project scaffolded: ``, package `org.dev.healthbuddy`, minSdk 31, targetSdk 37 **(done)**
-- [x] Dependencies: Material 3 Expressive 1.4.0 pinned, material-icons-core pinned — **nothing else added** **(done)**
+- [x] Project scaffolded: `healthBuddy/`, package `org.dev.healthbuddy`, minSdk 31, targetSdk 37 **(done)**
+- [x] Dependencies: Material 3 Expressive 1.5.0-beta02 (BOM 2026.09.00), material-icons-core, Navigation Compose 2.10.2 + kotlinx-serialization (needed for type-safe routes) **(done)**
 - [ ] Verify `./gradlew :app:assembleDebug` passes **(S)**
 - [x] App name set to "HealthBuddy" **(done)**
 
 ### Phase 1 — Domain (no UI)
 
-- [ ] `Models.kt` — enums + data classes **(S)**
-- [ ] `BarrierCatalog.kt` — all 9 entries, copy verbatim from §10.2 **(L)**
-- [ ] `Education.kt` — 6 cards **(M)**
-- [ ] `Seed.kt` — medicines, appointments, tips, pre-seeded missed dose **(S)**
-- [ ] `Repository.kt` — JSON read/write, schema version **(M)**
-- [ ] `AppState.kt` — state + actions (logDose, setBarrier, setHelpful, addMedicine…) **(L)**
+- [x] `Models.kt` — enums + data classes **(S)**
+- [x] `BarrierCatalog.kt` — all 9 entries, copy verbatim from §10.2 **(L)**
+- [x] `Education.kt` — 6 cards **(M)**
+- [x] `Seed.kt` — medicines, appointments, tips, pre-seeded missed dose **(S)**
+- [x] `Repository.kt` — JSON read/write, schema version **(M)**
+- [x] `AppState.kt` — state + actions (logDose, setBarrier, setHelpful, addMedicine…) **(L)**
 
 ### Phase 2 — The money flow ★
 
-- [ ] Theme + `App.kt` shell + `Screen` sealed class **(M)**
-- [ ] `DashboardScreen` — today's doses, due-now section, appointment, tip **(L)**
-- [ ] `DoseLogSheet` — Taken / Missed / Not sure **(M)**
-- [ ] `BarrierSheet` — 9 options, one tap, dismissible **(M)**
-- [ ] `SupportSheet` — title, body, safety note box, action button **(L)**
-- [ ] `FollowUpSheet` — 3 answers → confirm state **(S)**
-- [ ] Wire end-to-end; verify ≤ 6 taps **(M)**
+- [x] Theme + `App.kt` shell + navigation **(M)**
+- [x] `DashboardScreen` — today's doses, due-now section, appointment, tip **(L)**
+- [x] Dose log → barrier → support → follow-up — shipped as **one** `DoseFlowSheet` with internal step state (four separate sheets kept losing the user mid-flow) **(L)**
+- [x] Wire end-to-end; verify ≤ 6 taps **(M)**
 
 ### Phase 3 — Supporting screens
 
-- [ ] `OnboardingScreen` — language, name, conditions **(M)**
-- [ ] `MedicinesScreen` + `AddMedicineScreen` **(L)**
-- [ ] `HistoryScreen` — 30-day timeline with barrier chips **(M)**
-- [ ] `LearnScreen` + detail sheet **(M)**
-- [ ] `WhyItMattersScreen` — loop diagram drawn in Compose **(M)**
-- [ ] `SettingsScreen` — language, private notifications, reset **(S)**
+- [x] `OnboardingScreen` — language, name **(M)**
+- [x] `MedicinesScreen` + `AddMedicineScreen` **(L)**
+- [x] `HistoryScreen` — day-grouped timeline with barrier chips **(M)**
+- [x] `LearnScreen` + detail **(M)**
+- [x] `WhyItMattersScreen` — loop drawn in Compose **(M)**
+- [x] `SettingsScreen` — language, theme, private mode, demo replay, reset **(S)**
 
 ### Phase 4 — Demo armour
 
-- [ ] Persistence round-trip verified after force-close **(S)**
-- [ ] **Demo scenario** button — resets to Ravi state and opens the barrier sheet **(M)**
-- [ ] HI + MR strings for all UI chrome **(L)**
-- [ ] Empty states (no medicines, no history, no logs today) **(S)**
-- [ ] Dark mode **(M)**
-- [ ] Icon, splash, app name **(S)**
-- [ ] Rehearse §7 three times, time it **(S)**
+- [x] Persistence round-trip — `Store` writes a versioned JSON snapshot on every mutation **(S)**
+- [x] **Demo scenario** button — resets to Ravi state **and** opens the missed-dose flow at the barrier question **(M)**
+- [x] HI + MR strings for all UI chrome **(L)**
+- [x] Empty states (no medicines, no history, no logs today) **(S)**
+- [x] Dark mode **(M)**
+- [ ] Icon — **deferred by decision**; splash + launcher label "HealthBuddy" done **(S)**
+- [ ] Rehearse §7 three times, time it **(S)** — presenter's job
 
 ### Phase 5 — Optional, only if Phase 4 is done
 
-- [ ] Local notification via `AlarmManager` + `expect/actual` **(L)**
-- [ ] Weekly "what got in the way" summary card **(M)**
-- [ ] Haptic feedback on log **(S)**
+- [ ] Local notification via `AlarmManager` — **not built** (§17 Q3 default: out of scope for v1)
+- [x] Weekly "what got in the way" summary card on History — counts only, no advice **(M)**
+- [x] Haptic feedback (`HapticFeedbackType.Confirm`) + snackbar confirmation on log **(S)**
 
 ### Phase 6 — Documentation for submission
 
-- [ ] `README.md` — what it does, how to run, the research question, safety model **(M)**
-- [ ] Screenshots for the report/poster **(S)**
+- [x] `README.md` — what it does, how to run, the research question, safety model **(M)**
+- [ ] Screenshots for the report/poster **(S)** — needs a running build
 - [ ] One-slide architecture + loop diagram export **(S)**
 
 ---
@@ -472,7 +472,7 @@ Sizes: **S** ≈ <30 min, **M** ≈ 1–2 h, **L** ≈ 3–4 h.
 | R2 | Demo fails live | No network, no login, deterministic demo button, data seeded |
 | R3 | Barrier question feels like interrogation | One tap, skippable, "prefer not to say" first-class |
 | R4 | Judges ask "does this actually work?" | Answer with the research question + evaluation design, never with a claim |
-| R5 | KMP dependency/version pain | Minimal deps, no nav/DI/DB libraries |
+| R5 | Dependency/version pain | Minimal deps: no DI, no database, no network. Navigation Compose + kotlinx-serialization are the only additions, pinned and cached |
 | R6 | Translation quality challenged | Documented policy in §11.3 |
 | R7 | Looks like a student project | Theme, icon, motion, dark mode — Phase 4 is not optional |
 

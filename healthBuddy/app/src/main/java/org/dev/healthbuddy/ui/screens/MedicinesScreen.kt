@@ -1,6 +1,8 @@
 package org.dev.healthbuddy.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.List
@@ -25,6 +28,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.dev.healthbuddy.data.AppState
+import org.dev.healthbuddy.domain.Barrier
+import org.dev.healthbuddy.domain.BarrierCatalog
+import org.dev.healthbuddy.domain.Lang
 import org.dev.healthbuddy.domain.Medicine
 import org.dev.healthbuddy.ui.Fmt
 import org.dev.healthbuddy.ui.components.EmptyState
@@ -104,6 +110,7 @@ fun HistoryScreen(
 ) {
     val s = LocalStrings.current
     val grouped = state.logsDesc().groupBy { it.date }
+    val weekly = state.barrierCountsThisWeek()
 
     if (grouped.isEmpty()) {
         EmptyState(
@@ -119,6 +126,12 @@ fun HistoryScreen(
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        if (weekly.isNotEmpty()) {
+            item(key = "weekly-barriers") {
+                WeeklyBarrierCard(weekly, state.lang)
+            }
+        }
+
         grouped.forEach { (date, entries) ->
             item(key = "h-$date") {
                 Text(
@@ -188,5 +201,52 @@ fun HistoryScreen(
                 }
             }
         }
+    }
+}
+
+/**
+ * The research question made visible: counts of what got in the way, nothing else.
+ * No score, no streak, no advice — the pattern is the user's to read.
+ */
+@Composable
+private fun WeeklyBarrierCard(counts: List<Pair<Barrier, Int>>, lang: Lang) {
+    val s = LocalStrings.current
+    val max = counts.maxOf { it.second }
+
+    HbCard(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh) {
+        Text(text = s.weeklyTitle, style = MaterialTheme.typography.titleSmall)
+        Spacer(Modifier.height(12.dp))
+        counts.forEach { (barrier, count) ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = BarrierCatalog.of(barrier).text(lang).label,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(Modifier.height(5.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(count.toFloat() / max)
+                            .height(5.dp)
+                            .background(MaterialTheme.colorScheme.primary, CircleShape)
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    text = count.toString(),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            Spacer(Modifier.height(10.dp))
+        }
+        Text(
+            text = s.weeklyCaption,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

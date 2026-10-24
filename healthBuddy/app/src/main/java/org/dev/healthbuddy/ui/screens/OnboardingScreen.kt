@@ -23,7 +23,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MediumTopAppBar
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -52,13 +53,18 @@ fun OnboardingScreen(state: AppState) {
 
     Scaffold(
         topBar = {
-            MediumTopAppBar(title = {
-                Text(
-                    fontWeight = FontWeight.ExtraBold,
-                    text = s.appName,
-                    color = MaterialTheme.colorScheme.primary
+            TopAppBar(
+                title = {
+                    Text(
+                        fontWeight = FontWeight.ExtraBold,
+                        text = s.appName,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
                 )
-            })
+            )
         },
         contentWindowInsets = WindowInsets(0.dp)
     ) {
@@ -75,7 +81,7 @@ fun OnboardingScreen(state: AppState) {
 
             Image(
                 painter = painterResource(id = R.drawable.med),
-                contentDescription = "",
+                contentDescription = null,
                 modifier = Modifier.size(200.dp).align(Alignment.End).weight(1f)
             )
             Text(

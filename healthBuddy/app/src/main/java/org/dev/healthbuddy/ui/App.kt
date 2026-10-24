@@ -29,11 +29,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -112,7 +115,27 @@ private fun MainShell(state: AppState) {
     val s = LocalStrings.current
     val motion = MaterialTheme.motionScheme
     val nav = rememberNavController()
+    val snackbarHostState = remember { SnackbarHostState() }
     var flowSlot by remember { mutableStateOf<DoseSlot?>(null) }
+    var pendingLogMessage by remember { mutableStateOf<String?>(null) }
+
+    // "Replay demo scenario" lands on the missed dose, ready for the barrier question.
+    LaunchedEffect(state.pendingDemoFlow) {
+        if (state.pendingDemoFlow) {
+            state.consumeDemoFlow()
+            nav.popBackStack()
+            flowSlot = state.attentionSlots().firstOrNull()
+        }
+    }
+
+    // The sheet is its own window, so the confirmation is shown once it closes.
+    LaunchedEffect(flowSlot) {
+        if (flowSlot == null) {
+            val message = pendingLogMessage ?: return@LaunchedEffect
+            pendingLogMessage = null
+            snackbarHostState.showSnackbar(message)
+        }
+    }
 
     val backStackEntry by nav.currentBackStackEntryAsState()
     val destination = backStackEntry?.destination
@@ -134,6 +157,7 @@ private fun MainShell(state: AppState) {
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -156,7 +180,7 @@ private fun MainShell(state: AppState) {
                         IconButton(onClick = { nav.navigateUp() }) {
                             Icon(
                                 imageVector = Icons.Filled.ArrowBack,
-                                contentDescription = "Back"
+                                contentDescription = s.back
                             )
                         }
                     }
@@ -301,6 +325,7 @@ private fun MainShell(state: AppState) {
         DoseFlowSheet(
             slot = slot,
             state = state,
+            onLogged = { message -> pendingLogMessage = message },
             onDismiss = { flowSlot = null }
         )
     }

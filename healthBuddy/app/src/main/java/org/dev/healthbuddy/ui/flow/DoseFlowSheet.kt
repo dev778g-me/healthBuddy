@@ -36,7 +36,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.dev.healthbuddy.data.AppState
@@ -64,12 +66,20 @@ private enum class Step { LOG, BARRIER, SUPPORT, FOLLOWUP, DONE, UNSURE }
 fun DoseFlowSheet(
     slot: DoseSlot,
     state: AppState,
+    onLogged: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
     val s = LocalStrings.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val context = LocalContext.current
+    val haptics = LocalHapticFeedback.current
     val log = slot.log
+
+    fun record(status: DoseStatus, label: String) {
+        haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+        state.logDose(slot, status)
+        onLogged("$label · ${Fmt.time(slot.time)} · ${slot.medicine.name}")
+    }
 
     var step by remember(slot.id) {
         mutableStateOf(
@@ -113,7 +123,7 @@ fun DoseFlowSheet(
                     Spacer(Modifier.height(18.dp))
                     Button(
                         onClick = {
-                            state.logDose(slot, DoseStatus.TAKEN)
+                            record(DoseStatus.TAKEN, s.taken)
                             step = Step.DONE
                         },
                         modifier = Modifier.fillMaxWidth()
@@ -121,7 +131,7 @@ fun DoseFlowSheet(
                     Spacer(Modifier.height(10.dp))
                     OutlinedButton(
                         onClick = {
-                            state.logDose(slot, DoseStatus.MISSED)
+                            record(DoseStatus.MISSED, s.missed)
                             step = Step.BARRIER
                         },
                         modifier = Modifier.fillMaxWidth()
@@ -129,7 +139,7 @@ fun DoseFlowSheet(
                     Spacer(Modifier.height(10.dp))
                     OutlinedButton(
                         onClick = {
-                            state.logDose(slot, DoseStatus.UNSURE)
+                            record(DoseStatus.UNSURE, s.notSure)
                             step = Step.UNSURE
                         },
                         modifier = Modifier.fillMaxWidth()

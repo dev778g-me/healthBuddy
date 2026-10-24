@@ -30,10 +30,10 @@ Min SDK 31 (Android 12) · target SDK 37.
 | **Onboarding** | Name + language (EN / हिंदी / मराठी). Two questions, nothing else. |
 | **Today** | Needs-attention card, today's doses, next appointment, health tip |
 | **Medicines** | Add / toggle / remove medicines and reminder times |
-| **History** | Every dose, its barrier, and whether the help was useful |
+| **History** | Every dose, its barrier, whether the help was useful, and this week's barrier counts |
 | **Learn** | Six plain-language cards |
 | **Why this matters** | The loop, the research question, the safety stance |
-| **Settings** | Language, private mode, replay demo, reset |
+| **Settings** | Language, theme, private mode, replay demo, reset |
 
 ## The loop
 
@@ -62,12 +62,15 @@ Run these in order. Each maps to a PRD acceptance criterion.
    → UI is in Hindi, dashboard is populated.
 2. **Settings → Language → English** → UI switches instantly, no restart.
 3. **Needs attention** card is visible (yesterday's Metformin was seeded as missed).
-4. Tap it → *"What made it difficult today?"* appears with 9 options.
+4. Tap it → *"What made it difficult today?"* appears with 9 options. The phone gives
+   a confirm haptic.
 5. Tap **"It costs too much"** → support card with body, care bullets, amber safety note.
 6. Tap **Done** → *"Was this helpful?"* → tap **Yes**.
-7. Close the sheet → dashboard no longer shows that card as needing attention.
-8. **History** → the entry shows `Barrier: It costs too much` and `Helpful: Yes`.
-9. **Settings → Replay demo scenario** → everything resets to Ravi's story.
+7. Close the sheet → a snackbar confirms what was logged; the dashboard card is gone.
+8. **History** → the entry shows `Barrier: It costs too much` and `Helpful: Yes`, and the
+   weekly card at the top counts that barrier. It must contain no advice or score.
+9. **Settings → Replay demo scenario** → resets to Ravi's story **and** opens the missed
+   dose straight at the barrier question.
 10. **Kill the app from recents, relaunch** → all data is still there.
 11. **Settings → Private mode** on → medicine names are hidden on Today.
 12. **Settings → Reset all data** → confirm → onboarding returns.
@@ -89,15 +92,18 @@ app/src/main/java/org/dev/healthbuddy/
 ├── MainActivity.kt
 ├── data/       Store.kt (SharedPreferences + org.json) · AppState.kt (state + mutations)
 ├── domain/     Models · BarrierCatalog ★ · Education · Seed
-└── ui/         App.kt · theme/ · components/ · screens/ · flow/DoseFlowSheet.kt ★
+└── ui/         App.kt · nav/Routes.kt · theme/ · components/ · screens/ · flow/DoseFlowSheet.kt ★
 ```
 
-- **No navigation library** — a sealed `Route` and a `Tab` enum, resolved by `when`.
+- **Navigation Compose 2.10.2** with type-safe `@Serializable` destinations — not a
+  hand-rolled `when`. The back stack, predictive back and screen transitions come from
+  the library.
 - **No database** — the whole state is one JSON blob. The dataset is tiny.
-- **No DI framework** — one `AppState` constructed in `MainActivity`.
-- **No annotation processors** — AGP 9 uses built-in Kotlin; KSP/kapt would be friction.
-- **Material 3 Expressive**, pinned to `material3:1.4.0` (the first stable release with
-  the Expressive type scale and shape tokens). No betas.
+- **No DI framework** — one `AppState` held by an `AndroidViewModel`.
+- **No annotation processors** — AGP 9 uses built-in Kotlin. The serialization compiler
+  plugin is the only addition, and type-safe routes need it.
+- **Material 3 Expressive** via Compose BOM 2026.09.00 (`material3:1.5.0-beta02`), which
+  supplies the `MotionScheme` used for screen transitions.
 
 ### Content is data, not code paths
 

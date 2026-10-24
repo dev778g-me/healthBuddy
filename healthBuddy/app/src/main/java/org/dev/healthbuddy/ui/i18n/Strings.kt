@@ -100,7 +100,11 @@ data class Strings(
     val later15: String,
     val later30: String,
     val later60: String,
-    val reminderMoved: String
+    val reminderMoved: String,
+
+    val back: String,
+    val weeklyTitle: String,
+    val weeklyCaption: String
 )
 
 val EnStrings = Strings(
@@ -182,7 +186,11 @@ val EnStrings = Strings(
     later15 = "15 min later",
     later30 = "30 min later",
     later60 = "1 hour later",
-    reminderMoved = "Reminder moved"
+    reminderMoved = "Reminder moved",
+
+    back = "Back",
+    weeklyTitle = "What got in the way this week",
+    weeklyCaption = "Patterns, not judgements. No advice is generated from this."
 )
 
 val HiStrings = Strings(
@@ -264,7 +272,11 @@ val HiStrings = Strings(
     later15 = "15 मिनट बाद",
     later30 = "30 मिनट बाद",
     later60 = "1 घंटे बाद",
-    reminderMoved = "रिमाइंडर बदल दिया"
+    reminderMoved = "रिमाइंडर बदल दिया",
+
+    back = "वापस",
+    weeklyTitle = "इस हफ़्ते किस बात ने रोका",
+    weeklyCaption = "ये पैटर्न हैं, कोई फ़ैसला नहीं। इससे कोई सलाह नहीं बनती।"
 )
 
 val MrStrings = Strings(
@@ -346,7 +358,11 @@ val MrStrings = Strings(
     later15 = "15 मिनिटांनी",
     later30 = "30 मिनिटांनी",
     later60 = "1 तासाने",
-    reminderMoved = "आठवण बदलली"
+    reminderMoved = "आठवण बदलली",
+
+    back = "मागे",
+    weeklyTitle = "या आठवड्यात काय अडले",
+    weeklyCaption = "हा नमुना आहे, निर्णय नाही. यातून कोणताही सल्ला तयार होत नाही."
 )
 
 fun Lang.strings(): Strings = when (this) {

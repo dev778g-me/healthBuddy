@@ -184,6 +184,20 @@ class AppState(private val store: Store) {
 
     fun logsDesc(): List<DoseLog> = logs.sortedByDescending { it.date + it.time }
 
+    /** Barriers logged in the last 7 days, most frequent first. Counts only — no advice. */
+    fun barrierCountsThisWeek(): List<Pair<Barrier, Int>> {
+        val since = LocalDate.now().minusDays(6).toString()
+        return logs
+            .filter { it.barrier != null && it.date >= since }
+            .groupingBy { it.barrier!! }
+            .eachCount()
+            .toList()
+            .sortedWith(
+                compareByDescending<Pair<Barrier, Int>> { it.second }
+                    .thenBy { it.first.ordinal }
+            )
+    }
+
     fun medicineName(id: String): String =
         medicines.firstOrNull { it.id == id }?.name ?: "Medicine"
 
@@ -197,6 +211,14 @@ class AppState(private val store: Store) {
 
     // ---- demo / reset -----------------------------------------------------
 
+    /** One-shot signal consumed by MainShell: open the missed-dose flow after a reset. */
+    var pendingDemoFlow by mutableStateOf(false)
+        private set
+
+    fun consumeDemoFlow() {
+        pendingDemoFlow = false
+    }
+
     /** Deterministic reset to Ravi's story — used on stage. */
     fun loadDemo() {
         name = "Ravi"
@@ -207,6 +229,7 @@ class AppState(private val store: Store) {
         logs = Seed.demoLogs()
         onboarded = true
         resetTab()
+        pendingDemoFlow = true
         persist()
     }
 
