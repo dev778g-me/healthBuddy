@@ -2,6 +2,7 @@ package org.dev.healthbuddy.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -129,21 +130,11 @@ fun AddMedicineSheet(state: AppState) {
             Text(s.timesLabel, style = MaterialTheme.typography.titleSmall)
             Spacer(Modifier.height(10.dp))
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                PRESET_TIMES.take(3).forEach { time ->
-                    FilterChip(
-                        selected = selected.contains(time),
-                        onClick = {
-                            selected =
-                                if (selected.contains(time)) selected - time else selected + time
-                        },
-                        label = { Text(time) }
-                    )
-                }
-            }
-            Spacer(Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                PRESET_TIMES.drop(3).forEach { time ->
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                PRESET_TIMES.forEach { time ->
                     FilterChip(
                         selected = selected.contains(time),
                         onClick = {
@@ -157,7 +148,10 @@ fun AddMedicineSheet(state: AppState) {
 
             if (customTimes.isNotEmpty()) {
                 Spacer(Modifier.height(10.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     customTimes.forEach { time ->
                         InputChip(
                             selected = true,

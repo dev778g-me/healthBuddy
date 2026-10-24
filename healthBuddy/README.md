@@ -94,6 +94,8 @@ Run these in order. Each maps to a PRD acceptance criterion.
 18. Open the **DISTRESS** card → it must offer `Call 14416`, and dialling must use the
     system dialer (no permission required, no call placed automatically).
 19. Choose **"I'd rather not say"** → the app must not nag, badge, or re-ask.
+20. Open the **STIGMA** card → it offers **Turn on private mode** (not a reminder shift);
+    tapping it hides medicine names and confirms in place.
 
 ---
 

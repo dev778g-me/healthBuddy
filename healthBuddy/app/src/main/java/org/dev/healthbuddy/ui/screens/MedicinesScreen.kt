@@ -34,6 +34,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.composables.icons.lucide.History
@@ -131,7 +135,17 @@ private fun SwipeToRemoveMedicine(
 
     SwipeToDismissBox(
         state = dismissState,
-        modifier = Modifier.clip(shape),
+        modifier = Modifier
+            .clip(shape)
+            .semantics {
+                // A swipe is invisible to TalkBack; expose the same action in its menu.
+                customActions = listOf(
+                    CustomAccessibilityAction(label = s.remove) {
+                        onRemove()
+                        true
+                    }
+                )
+            },
         enableDismissFromStartToEnd = false,
         onDismiss = { value ->
             if (value == SwipeToDismissBoxValue.EndToStart) onRemove()
@@ -189,7 +203,11 @@ private fun MedicineRow(
                     color = MaterialTheme.colorScheme.primary
                 )
             }
-            Switch(checked = med.active, onCheckedChange = { onToggle() })
+            Switch(
+                checked = med.active,
+                onCheckedChange = { onToggle() },
+                modifier = Modifier.semantics { contentDescription = med.name }
+            )
         }
     }
 }

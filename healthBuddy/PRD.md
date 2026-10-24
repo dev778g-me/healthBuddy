@@ -103,7 +103,7 @@ Everything else in the app exists to support this loop.
 | 0:10 | Last night's Metformin shows **Missed → needs help**. "A normal reminder app stops here." |
 | 0:18 | Tap it → *"What made it difficult today?"* → tap **"It costs too much."** |
 | 0:28 | Support card appears. Read the first line aloud. "Notice what it did **not** say — it did not say stop taking it." |
-| 0:40 | Tap **Find a public facility** → tap **Was this helpful? Yes** |
+| 0:40 | Read the care options aloud (PHC · Jan Aushadhi · helpline 104) → tap **Was this helpful? Yes** |
 | 0:48 | Dashboard updates: *barrier identified: cost*. "Now it knows something a reminder app never could." |
 | 0:55 | Open **Why this matters** → the loop diagram + research question. |
 | 1:05 | **Demo scenario** → resets and reopens the missed dose at the barrier question. "One tap, back to the start." |
@@ -114,13 +114,13 @@ Everything else in the app exists to support this loop.
 
 ### 8.1 In scope (build this)
 
-- 6 screens: Onboarding, Dashboard, Medicines (+ Add), History, Learn, Why it matters
-- The barrier flow as 3 bottom sheets
+- 7 screens: Onboarding, Dashboard, Medicines, History, Learn, Why it matters, Settings
+- The barrier flow in one bottom sheet (log → barrier → support → follow-up)
 - Local persistence
 - 4 languages: English, हिंदी, मराठी, ଓଡ଼ିଆ (UI strings)
 - Demo scenario mode
 - Light + dark theme
-- Bilingual support content? **No** — support cards in English for v1 (see §11.3)
+- Support content: English + Hindi, both reviewed; Marathi and Odia fall back to English (see §11.3)
 
 ### 8.2 Out of scope (do NOT build)
 
@@ -177,7 +177,7 @@ data class BarrierSupport(
     val title: String,           // support card headline
     val body: String,            // 2–3 sentences, plain language
     val actionLabel: String?,    // primary button
-    val actionType: ActionType,  // ADJUST_REMINDER, FIND_FACILITY, CALL, READ, NONE
+    val actionType: ActionType,  // ADJUST_REMINDER, FIND_FACILITY, CALL, READ, PRIVATE_MODE, NONE
     val escalation: Escalation,  // NONE, CLINICIAN, CRISIS
     val safetyNote: String?      // shown in a tinted box
 )
@@ -187,36 +187,36 @@ data class BarrierSupport(
 
 **1. `FORGOT` — "I simply forgot"**
 - Title: *Forgetting is normal — let's make it easier*
-- Body: Most doses are missed when the timing doesn't fit the day. We can move your reminder to a moment that works better — after breakfast, before bed, whenever you're actually home.
-- Action: **Adjust my reminder time** → `ADJUST_REMINDER`
+- Body: Most doses are missed when the timing doesn't fit the day. We can move this reminder to a moment that works better — after breakfast, before bed, whenever you're actually home.
+- Action: **Move this reminder** → `ADJUST_REMINDER` (chips: +15 / +30 / +60 min)
 - Escalation: none
 - Safety: —
 
 **2. `COST` — "It costs too much"** ★ *the flagship card*
 - Title: *Cost is a real barrier — and there is help*
 - Body: Medicines costing more than expected is one of the most common reasons doses get missed. This is not your fault. Your prescriber or pharmacist can tell you about cheaper options, generic equivalents, or government schemes you may qualify for.
-- Action: **Find a public facility near me** → `FIND_FACILITY`
+- Action: **Find care options** → `FIND_FACILITY` (labelled list + Call 104)
 - Escalation: clinician
 - Safety: *Never stop or change a prescribed medicine on your own. Speak to your doctor or pharmacist first.*
 
 **3. `SIDE_EFFECTS` — "I felt unwell, or was worried about side effects"**
 - Title: *Side effects should be reported, not endured silently*
 - Body: If a medicine is making you feel unwell — or you're worried it might — that is important information for your doctor, not something to work out alone. Note what you felt and when, and take it to your next visit.
-- Action: **Prepare notes for my doctor** → `READ`
+- Action: **What to note down** → `READ`
 - Escalation: clinician
 - Safety: *Do not stop the medicine on your own. If you have trouble breathing, swelling, chest pain, or severe dizziness, seek urgent care now.*
 
 **4. `CONFUSED` — "I didn't understand how to take it"**
 - Title: *Let's make the instructions clear*
 - Body: Instructions get confusing — different timings, before or after food, tablets that look alike. Your pharmacist can explain this in your own language in under a minute, and it's a completely normal thing to ask.
-- Action: **What to ask my pharmacist** → `READ`
+- Action: **What to ask your pharmacist** → `READ`
 - Escalation: none
 - Safety: —
 
 **5. `STIGMA` — "I felt embarrassed, or worried what people would think"**
 - Title: *Your treatment is private — and you're not alone*
-- Body: Many people delay medicines because of what others might think. Your health information stays on this device, and you can hide medicine names from your notifications.
-- Action: **Turn on private notifications** → `ADJUST_REMINDER`
+- Body: Many people delay medicines because of what others might think. Your health information stays on this device, and you can hide medicine names from this screen.
+- Action: **Turn on private mode** → `PRIVATE_MODE`
 - Escalation: none
 - Safety: —
 
@@ -230,14 +230,14 @@ data class BarrierSupport(
 **7. `DISTRESS` — "I was feeling low, anxious, or alone"**
 - Title: *Looking after your mind is part of looking after your health*
 - Body: When you're exhausted or overwhelmed, taking medicine can feel impossible. That is worth telling someone — a clinician, or a helpline that is free and confidential.
-- Action: **Talk to someone now** → `CALL`
+- Action: **Call a helpline** → `CALL` (14416)
 - Escalation: crisis
 - Safety: *If you are having thoughts of harming yourself, please call **14416** (Tele-MANAS, free, 24×7) or your local emergency number now.*
 
 **8. `OTHER` — "Something else"**
 - Title: *Thanks for telling us*
 - Body: Whatever it was, it's worth mentioning at your next visit. Even a small difficulty is useful information for your doctor.
-- Action: **Note it for my next appointment** → `READ`
+- Action: **What to mention** → `READ`
 - Escalation: none
 - Safety: —
 
@@ -289,7 +289,7 @@ Each card: ~80 words, reading level ~grade 6, one line of "this is education, no
 | FR-3 | Dose can be logged as Taken, Missed, or Not sure | Status persists; history updates |
 | FR-4 | Logging Missed opens the barrier question | 9 options, one tap each, dismissible |
 | FR-5 | Selecting a barrier shows the support card | Copy matches §10.2 exactly; safety note visible when defined |
-| FR-6 | Support card action does something visible | Adjust → +15/30/60 chips; Facility → labelled care list + 104 call; Call → dial intent; Read → labelled checklist |
+| FR-6 | Support card action does something visible | Adjust → +15/30/60 chips; Facility → labelled care list + 104 call; Call → dial intent; Read → labelled checklist; Privacy → turns on private mode |
 | FR-7 | Follow-up asks "Was this helpful?" with 3 answers | Answer stored on the log entry |
 | FR-8 | Unanswered "Was this helpful?" is recordable later | Yes/Not sure/No chips on the History entry |
 | FR-9 | Medicine CRUD: add, edit, toggle active | Add flow ≤ 4 inputs; tap a row to edit it in the same sheet |

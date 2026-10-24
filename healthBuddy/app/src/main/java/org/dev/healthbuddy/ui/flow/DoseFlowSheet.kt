@@ -244,6 +244,33 @@ fun DoseFlowSheet(
                             }
                         }
 
+                        if (support.action == ActionType.PRIVATE_MODE) {
+                            Spacer(Modifier.height(16.dp))
+                            if (!state.privateMode) {
+                                FilledTonalButton(
+                                    onClick = { state.changePrivateMode(true) },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(text.actionLabel ?: s.privateMode)
+                                }
+                            } else {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Lucide.Check,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(
+                                        text = s.privateModeOn,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+
                         if (support.callNumber != null) {
                             Spacer(Modifier.height(16.dp))
                             FilledTonalButton(

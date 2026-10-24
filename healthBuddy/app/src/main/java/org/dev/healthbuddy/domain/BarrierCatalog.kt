@@ -20,6 +20,7 @@ enum class ActionType {
     FIND_FACILITY,     // curated care options + health helpline
     CALL,              // dial a verified helpline
     READ,              // show guidance bullets inline
+    PRIVATE_MODE,      // hide medicine names on this phone
     NONE
 }
 
@@ -183,7 +184,7 @@ object BarrierCatalog {
         ),
         BarrierSupport(
             barrier = Barrier.STIGMA,
-            action = ActionType.ADJUST_REMINDER,
+            action = ActionType.PRIVATE_MODE,
             escalation = Escalation.NONE,
             en = BarrierText(
                 label = "I felt embarrassed, or worried what people would think",
