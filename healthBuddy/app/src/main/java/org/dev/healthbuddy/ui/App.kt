@@ -1,6 +1,7 @@
 package org.dev.healthbuddy.ui
 
 import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -14,7 +15,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonMenu
+import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -32,11 +35,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.core.view.WindowCompat
+import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -50,17 +57,23 @@ import com.composables.icons.lucide.House
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Pill
 import com.composables.icons.lucide.Plus
+import com.composables.icons.lucide.ScanLine
 import com.composables.icons.lucide.Settings
+import com.composables.icons.lucide.X
 import org.dev.healthbuddy.data.AppState
 import org.dev.healthbuddy.domain.DoseSlot
 import org.dev.healthbuddy.domain.Tab
 import org.dev.healthbuddy.domain.ThemeMode
 import org.dev.healthbuddy.ui.flow.DoseFlowSheet
 import org.dev.healthbuddy.ui.i18n.LocalStrings
+import org.dev.healthbuddy.ui.i18n.scanStrings
 import org.dev.healthbuddy.ui.i18n.strings
+import org.dev.healthbuddy.ui.nav.HistoryRoute
 import org.dev.healthbuddy.ui.nav.LearnDetailRoute
-import org.dev.healthbuddy.ui.nav.MainRoute
+import org.dev.healthbuddy.ui.nav.LearnRoute
+import org.dev.healthbuddy.ui.nav.MedicinesRoute
 import org.dev.healthbuddy.ui.nav.SettingsRoute
+import org.dev.healthbuddy.ui.nav.TodayRoute
 import org.dev.healthbuddy.ui.nav.WhyMattersRoute
 import org.dev.healthbuddy.ui.screens.DashboardScreen
 import org.dev.healthbuddy.ui.screens.HistoryScreen
@@ -116,12 +129,13 @@ private fun MainShell(state: AppState) {
     val snackbarHostState = remember { SnackbarHostState() }
     var flowSlot by remember { mutableStateOf<DoseSlot?>(null) }
     var pendingLogMessage by remember { mutableStateOf<String?>(null) }
+    var fabMenuExpanded by remember { mutableStateOf(false) }
 
     // "Replay demo scenario" lands on the missed dose, ready for the barrier question.
     LaunchedEffect(state.pendingDemoFlow) {
         if (state.pendingDemoFlow) {
             state.consumeDemoFlow()
-            nav.popBackStack()
+            nav.navigateToTab(Tab.TODAY)
             flowSlot = state.attentionSlots().firstOrNull()
         }
     }
@@ -130,7 +144,7 @@ private fun MainShell(state: AppState) {
     LaunchedEffect(state.pendingOpenToday) {
         if (state.pendingOpenToday) {
             state.consumeOpenToday()
-            nav.popBackStack()
+            nav.navigateToTab(Tab.TODAY)
         }
     }
 
@@ -145,13 +159,26 @@ private fun MainShell(state: AppState) {
 
     val backStackEntry by nav.currentBackStackEntryAsState()
     val destination = backStackEntry?.destination
-    val isMain = destination?.hasRoute<MainRoute>() == true
+    // Each tab is its own destination, so the system back stack mirrors the tabs.
+    val currentTab: Tab? = when {
+        destination?.hasRoute<TodayRoute>() == true -> Tab.TODAY
+        destination?.hasRoute<MedicinesRoute>() == true -> Tab.MEDICINES
+        destination?.hasRoute<HistoryRoute>() == true -> Tab.HISTORY
+        destination?.hasRoute<LearnRoute>() == true -> Tab.LEARN
+        else -> null
+    }
+    val isMain = currentTab != null
+
+    // Keep AppState.tab in step with the backstack (back pops between tabs too).
+    LaunchedEffect(currentTab) {
+        if (currentTab != null) state.selectTab(currentTab)
+    }
 
     val title = when {
         destination?.hasRoute<SettingsRoute>() == true -> s.settingsTitle
         destination?.hasRoute<LearnDetailRoute>() == true -> s.learnTitle
         destination?.hasRoute<WhyMattersRoute>() == true -> s.whyMattersTitle
-        isMain -> when (state.tab) {
+        currentTab != null -> when (currentTab) {
             Tab.TODAY -> if (state.name.isBlank()) s.hello else "${s.hello}, ${state.name}"
             Tab.MEDICINES -> s.medicinesTitle
             Tab.HISTORY -> s.historyTitle
@@ -211,26 +238,26 @@ private fun MainShell(state: AppState) {
                     containerColor = MaterialTheme.colorScheme.surfaceContainer
                 ) {
                     NavigationBarItem(
-                        selected = state.tab == Tab.TODAY,
-                        onClick = { state.selectTab(Tab.TODAY) },
+                        selected = currentTab == Tab.TODAY,
+                        onClick = { nav.navigateToTab(Tab.TODAY) },
                         icon = { Icon(Lucide.House, contentDescription = null) },
                         label = { Text(s.tabToday) }
                     )
                     NavigationBarItem(
-                        selected = state.tab == Tab.MEDICINES,
-                        onClick = { state.selectTab(Tab.MEDICINES) },
+                        selected = currentTab == Tab.MEDICINES,
+                        onClick = { nav.navigateToTab(Tab.MEDICINES) },
                         icon = { Icon(Lucide.Pill, contentDescription = null) },
                         label = { Text(s.tabMedicines) }
                     )
                     NavigationBarItem(
-                        selected = state.tab == Tab.HISTORY,
-                        onClick = { state.selectTab(Tab.HISTORY) },
+                        selected = currentTab == Tab.HISTORY,
+                        onClick = { nav.navigateToTab(Tab.HISTORY) },
                         icon = { Icon(Lucide.History, contentDescription = null) },
                         label = { Text(s.tabHistory) }
                     )
                     NavigationBarItem(
-                        selected = state.tab == Tab.LEARN,
-                        onClick = { state.selectTab(Tab.LEARN) },
+                        selected = currentTab == Tab.LEARN,
+                        onClick = { nav.navigateToTab(Tab.LEARN) },
                         icon = { Icon(Lucide.BookOpen, contentDescription = null) },
                         label = { Text(s.tabLearn) }
                     )
@@ -238,85 +265,117 @@ private fun MainShell(state: AppState) {
             }
         },
         floatingActionButton = {
-            if (isMain && state.tab == Tab.MEDICINES) {
-                FloatingActionButton(
-                    onClick = { state.openAddMedicineSheet() },
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            if (currentTab == Tab.MEDICINES) {
+                val scanText = state.lang.scanStrings()
+                BackHandler(enabled = fabMenuExpanded) { fabMenuExpanded = false }
+                FloatingActionButtonMenu(
+                    expanded = fabMenuExpanded,
+                    button = {
+                        ToggleFloatingActionButton(
+                            checked = fabMenuExpanded,
+                            onCheckedChange = { fabMenuExpanded = it },
+                            modifier = Modifier.semantics {
+                                contentDescription = if (fabMenuExpanded) s.close else s.addMedicine
+                            }
+                        ) {
+                            val icon by remember {
+                                derivedStateOf {
+                                    if (checkedProgress > 0.5f) Lucide.X else Lucide.Plus
+                                }
+                            }
+                            Icon(imageVector = icon, contentDescription = null)
+                        }
+                    }
                 ) {
-                    Icon(Lucide.Plus, contentDescription = s.addMedicine)
+                    FloatingActionButtonMenuItem(
+                        onClick = {
+                            fabMenuExpanded = false
+                            state.openScanSheet()
+                        },
+                        icon = { Icon(Lucide.ScanLine, contentDescription = null) },
+                        text = { Text(scanText.scanPrescription) }
+                    )
+                    FloatingActionButtonMenuItem(
+                        onClick = {
+                            fabMenuExpanded = false
+                            state.openAddMedicineSheet()
+                        },
+                        icon = { Icon(Lucide.Plus, contentDescription = null) },
+                        text = { Text(s.addMedicine) }
+                    )
                 }
             }
         }
     ) { padding ->
+        // Tab switches are fade-through (Material spec for bottom nav):
+        // no horizontal slide, no layout jump.
+        val tabFadeIn = fadeIn(motion.defaultEffectsSpec())
+        val tabFadeOut = fadeOut(motion.defaultEffectsSpec())
+        // Detail pushes keep a short, small slide so depth is legible
+        // without the jarring full-width slide.
+        val detailEnter =
+            slideInHorizontally(motion.defaultSpatialSpec()) { it / 4 } +
+                fadeIn(motion.defaultEffectsSpec())
+        val detailPopExit =
+            slideOutHorizontally(motion.defaultSpatialSpec()) { it / 4 } +
+                fadeOut(motion.defaultEffectsSpec())
+
         NavHost(
             navController = nav,
-            startDestination = MainRoute,
+            startDestination = TodayRoute,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { it },
-                    animationSpec = motion.defaultSpatialSpec()
-                )
-            },
-            exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { -it / 3 },
-                    animationSpec = motion.fastSpatialSpec()
-                )
-            },
-            popEnterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { -it / 3 },
-                    animationSpec = motion.defaultSpatialSpec()
-                )
-            },
-            popExitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { it },
-                    animationSpec = motion.fastSpatialSpec()
-                )
-            },
-            predictivePopEnterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { -it / 3 },
-                    animationSpec = motion.fastSpatialSpec()
-                )
-            },
-            predictivePopExitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { it },
-                    animationSpec = motion.fastSpatialSpec()
-                )
-            }
+            enterTransition = { tabFadeIn },
+            exitTransition = { tabFadeOut },
+            popEnterTransition = { tabFadeIn },
+            popExitTransition = { tabFadeOut },
+            predictivePopEnterTransition = { tabFadeIn },
+            predictivePopExitTransition = { tabFadeOut }
         ) {
-            composable<MainRoute> {
-                when (state.tab) {
-                    Tab.TODAY -> DashboardScreen(state) { flowSlot = it }
-                    Tab.MEDICINES -> MedicinesScreen(state)
-                    Tab.HISTORY -> HistoryScreen(state) { flowSlot = it }
-                    Tab.LEARN -> LearnScreen(
-                        state = state,
-                        onOpenDetail = { id ->
-                            state.selectedEduId = id
-                            nav.navigate(LearnDetailRoute)
-                        },
-                        onWhyMatters = { nav.navigate(WhyMattersRoute) }
-                    )
-                }
+            composable<TodayRoute> {
+                DashboardScreen(state) { flowSlot = it }
             }
 
-            composable<SettingsRoute> {
+            composable<MedicinesRoute> {
+                MedicinesScreen(state)
+            }
+
+            composable<HistoryRoute> {
+                HistoryScreen(state) { flowSlot = it }
+            }
+
+            composable<LearnRoute> {
+                LearnScreen(
+                    state = state,
+                    onOpenDetail = { id ->
+                        state.selectedEduId = id
+                        nav.navigate(LearnDetailRoute)
+                    },
+                    onWhyMatters = { nav.navigate(WhyMattersRoute) }
+                )
+            }
+
+            // Detail screens push in with a short slide so the hierarchy is
+            // clear; popping back plays the mirror transition.
+            composable<SettingsRoute>(
+                enterTransition = { detailEnter },
+                popExitTransition = { detailPopExit }
+            ) {
                 SettingsScreen(state)
             }
 
-            composable<LearnDetailRoute> {
+            composable<LearnDetailRoute>(
+                enterTransition = { detailEnter },
+                popExitTransition = { detailPopExit }
+            ) {
                 LearnDetailScreen(state)
             }
 
-            composable<WhyMattersRoute> {
+            composable<WhyMattersRoute>(
+                enterTransition = { detailEnter },
+                popExitTransition = { detailPopExit }
+            ) {
                 WhyMattersScreen()
             }
         }
@@ -329,5 +388,26 @@ private fun MainShell(state: AppState) {
             onLogged = { message -> pendingLogMessage = message },
             onDismiss = { flowSlot = null }
         )
+    }
+}
+
+/**
+ * Standard bottom-nav navigation: Today is the root of every tab's back
+ * stack, so pressing back from Medicines returns to Today instead of
+ * exiting the app, and each tab keeps its own state across switches.
+ */
+private fun NavController.navigateToTab(tab: Tab) {
+    val route = when (tab) {
+        Tab.TODAY -> TodayRoute
+        Tab.MEDICINES -> MedicinesRoute
+        Tab.HISTORY -> HistoryRoute
+        Tab.LEARN -> LearnRoute
+    }
+    navigate(route) {
+        popUpTo<TodayRoute> {
+            saveState = true
+        }
+        launchSingleTop = true
+        restoreState = true
     }
 }

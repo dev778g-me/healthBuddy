@@ -9,7 +9,16 @@ import kotlinx.serialization.Serializable
  * compiler will keep the call sites honest.
  */
 @Serializable
-data object MainRoute
+data object TodayRoute
+
+@Serializable
+data object MedicinesRoute
+
+@Serializable
+data object HistoryRoute
+
+@Serializable
+data object LearnRoute
 
 @Serializable
 data object SettingsRoute
