@@ -8,5 +8,6 @@ healthBuddy/app/build/
 
 # OS / editor
 .DS_Store
+.idea/
 *.iml
 *.hprof
