@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Camera writes here; the file is deleted as soon as scanning ends. -->
+    <cache-path
+        name="scan_cache"
+        path="scans/" />
+</paths>

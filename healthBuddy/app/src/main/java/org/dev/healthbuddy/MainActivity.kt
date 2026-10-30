@@ -8,10 +8,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import org.dev.healthbuddy.data.AppState
 import org.dev.healthbuddy.data.Store
 import org.dev.healthbuddy.notifications.ReminderScheduler
 import org.dev.healthbuddy.ui.HealthBuddyApp
+import kotlin.getValue
 
 /**
  * Holds [AppState] for the lifetime of the activity's task, so a rotation or a

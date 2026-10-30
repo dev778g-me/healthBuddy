@@ -16,6 +16,8 @@ import org.dev.healthbuddy.domain.Tab
 import org.dev.healthbuddy.domain.ThemeMode
 import org.dev.healthbuddy.domain.doseId
 import org.dev.healthbuddy.notifications.ReminderScheduler
+import org.dev.healthbuddy.scan.PrescriptionDraft
+import org.dev.healthbuddy.scan.ScannedMedicine
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -44,6 +46,10 @@ class AppState(
     var logs by mutableStateOf(snapshot.logs)
         private set
     var appointments by mutableStateOf(snapshot.appointments)
+        private set
+
+    // ---- scan state --------------------------------------------------------
+    var scanDraft by mutableStateOf<PrescriptionDraft?>(null)
         private set
 
     // ---- navigation (routes owned by Navigation Compose) ------------------
@@ -390,6 +396,42 @@ class AppState(
         // One place to keep the alarm set honest: every mutation already calls
         // persist(), so no edit path can forget to reschedule.
         reminders.sync(medicines, onboarded && remindersEnabled)
+    }
+
+    /** Clear the scan draft (e.g. when leaving the review screen). */
+    fun clearScanDraft() {
+        scanDraft = null
+    }
+
+    /** Open the prescription review screen with the given draft. */
+    fun openScanReview(draft: PrescriptionDraft) {
+        scanDraft = draft
+    }
+
+    var scanSheetOpen by mutableStateOf(false)
+        private set
+
+    fun openScanSheet() {
+        scanSheetOpen = true
+    }
+
+    fun closeScanSheet() {
+        scanSheetOpen = false
+    }
+
+    /** Add scanned medicines to the state (e.g. from prescription review). */
+    fun addScannedMedicines(newMedicines: List<ScannedMedicine>) {
+        val domainMeds = newMedicines.map { scanned ->
+            Medicine(
+                id = "scanned-${scanned.name.hashCode().toString(36)}",
+                name = scanned.name.ifBlank { "Medicine" },
+                dose = scanned.dose.ifBlank { "—" },
+                condition = "",
+                times = scanned.times.sorted()
+            )
+        }
+        medicines = medicines + domainMeds
+        persist()
     }
 
     private fun today(): String = LocalDate.now().toString()
