@@ -13,6 +13,8 @@ composeBom = "2026.09.00"
 # (instead of only using the BOM) so the Expressive surface can't drift.
 material3Expressive = "1.5.0-beta02"
 navigationCompose = "2.10.2"
+groqKotlin = "0.1.2"
+mlkitTextRecognition = "16.0.1"
 lucideIcons = "1.1.0"
 kotlinxSerializationJson = "1.11.0"
 
@@ -34,6 +36,8 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-compose-material3-expressive = { group = "androidx.compose.material3", name = "material3", version.ref = "material3Expressive" }
 composables-icons-lucide = { group = "com.composables", name = "icons-lucide", version.ref = "lucideIcons" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+groqKotlin = { group = "io.github.vyfor", name = "groq-kt", version.ref = "groqKotlin" }
+mlkit-text-recognition = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkitTextRecognition" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
 [plugins]

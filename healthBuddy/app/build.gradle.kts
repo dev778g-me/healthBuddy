@@ -1,7 +1,15 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+}
+
+// Secrets live in local.properties (gitignored), never in this file.
+val localProps = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
 }
 
 android {
@@ -18,6 +26,26 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // Groq API key — set GROQ_API_KEY=... in local.properties and rebuild.
+        // The build fails empty (AI scanning turns off at runtime, nothing crashes).
+        buildConfigField(
+            "String",
+            "GROQ_API_KEY",
+            "\"${localProps.getProperty("GROQ_API_KEY", "")}\""
+        )
+    }
+
+    // ./gradlew :app:assembleRelease signs automatically once the four
+    // keystore.* lines are present in local.properties.
+    if (localProps.containsKey("keystore.file")) {
+        signingConfigs {
+            create("release") {
+                storeFile = rootProject.file(localProps.getProperty("keystore.file"))
+                storePassword = localProps.getProperty("keystore.password")
+                keyAlias = localProps.getProperty("keystore.alias")
+                keyPassword = localProps.getProperty("keystore.password")
+            }
+        }
     }
 
     buildTypes {
@@ -25,6 +53,9 @@ android {
             optimization {
                 enable = true
                 packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
+            }
+            if (localProps.containsKey("keystore.file")) {
+                signingConfig = signingConfigs.getByName("release")
             }
         }
     }
@@ -34,6 +65,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -51,6 +83,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    // ML Kit on-device OCR
+    implementation(libs.mlkit.text.recognition)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
@@ -58,4 +92,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    // Groq AI library (optional, for prescription OCR enhancement)
+    implementation(libs.groqKotlin)
 }
