@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.composables.icons.lucide.CalendarDays
+import com.composables.icons.lucide.ChevronRight
 import com.composables.icons.lucide.Heart
 import com.composables.icons.lucide.Info
 import com.composables.icons.lucide.Lucide
@@ -61,8 +62,8 @@ fun LearnScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background, shape = MaterialTheme.shapes.medium),
-        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 32.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {
             Column(modifier = Modifier.padding(bottom = 4.dp)) {
@@ -135,6 +136,12 @@ private fun EduRow(card: EduCard, lang: org.dev.healthbuddy.domain.Lang, onClick
                 text = text.title,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = Lucide.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
             )
         }
     }

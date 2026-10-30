@@ -22,7 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -78,6 +78,16 @@ fun MedicinesScreen(state: AppState) {
         AddMedicineSheet(state)
     }
 
+    // Scan result: show the mandatory review before anything else, even when
+    // the medicine list is still empty (first-time scan).
+    if (state.scanDraft != null) {
+        PrescriptionReviewScreen(
+            state = state,
+            onDone = { state.clearScanDraft() }
+        )
+        return
+    }
+
     if (state.medicines.isEmpty()) {
         EmptyState(
             icon = Lucide.Pill,
@@ -94,15 +104,14 @@ fun MedicinesScreen(state: AppState) {
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background, shape = MaterialTheme.shapes.medium),
-        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 96.dp),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item(key = "swipe-hint") {
             Text(
                 text = s.swipeToRemoveHint,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 4.dp)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         item(key = "medicine-block") {
@@ -129,6 +138,16 @@ fun MedicinesScreen(state: AppState) {
                 }
             }
         }
+    }
+
+    if (state.scanSheetOpen) {
+        ScanSheet(
+            state = state,
+            onDismiss = { state.closeScanSheet() },
+            onReview = {
+                state.closeScanSheet()
+            }
+        )
     }
 }
 
@@ -250,155 +269,149 @@ fun HistoryScreen(
         return
     }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.background, shape = MaterialTheme.shapes.medium),
-        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 32.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        item(key = "share-summary") {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                FilledTonalButton(onClick = { shareVisitSummary(context, state, s) }) {
-                    Icon(
-                        imageVector = Lucide.Share2,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = s.shareSummary,
-                        style = MaterialTheme.typography.labelLarge
-                    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background, shape = MaterialTheme.shapes.medium),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 100.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+
+            if (weekly.isNotEmpty()) {
+                item(key = "weekly-barriers") {
+                    WeeklyBarrierCard(weekly, state.lang)
                 }
             }
-        }
 
-        if (weekly.isNotEmpty()) {
-            item(key = "weekly-barriers") {
-                WeeklyBarrierCard(weekly, state.lang)
-            }
-        }
-
-        grouped.forEach { (date, entries) ->
-            item(key = "h-$date") {
-                Text(
-                    text = Fmt.dayLabel(date, s),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
-            items(entries, key = { "log-${it.id}" }) { log ->
-                val needsReason = log.status == org.dev.healthbuddy.domain.DoseStatus.MISSED
-                    && log.barrier == null
-                HbCard(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                    onClick = if (needsReason) {
-                        { state.slotFor(log)?.let(onOpenFlow) }
-                    } else null
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(modifier = Modifier.weight(1f)) {
+            grouped.forEach { (date, entries) ->
+                item(key = "h-$date") {
+                    Text(
+                        text = Fmt.dayLabel(date, s),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+                items(entries, key = { "log-${it.id}" }) { log ->
+                    val needsReason = log.status == org.dev.healthbuddy.domain.DoseStatus.MISSED
+                        && log.barrier == null
+                    HbCard(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                        onClick = if (needsReason) {
+                            { state.slotFor(log)?.let(onOpenFlow) }
+                        } else null
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = state.medicineName(log.medicineId),
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                                Text(
+                                    text = Fmt.time(log.time),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                             Text(
-                                text = state.medicineName(log.medicineId),
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                            Text(
-                                text = Fmt.time(log.time),
-                                style = MaterialTheme.typography.bodySmall,
+                                text = org.dev.healthbuddy.ui.components.statusLabel(log.status, s),
+                                style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        Text(
-                            text = org.dev.healthbuddy.ui.components.statusLabel(log.status, s),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    if (log.barrier != null) {
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = "${s.barrierLabel}: " +
-                                org.dev.healthbuddy.domain.BarrierCatalog
-                                    .of(log.barrier).text(state.lang).label,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    if (log.helpful != null) {
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            text = "${s.helpfulLabel}: " + when (log.helpful) {
-                                org.dev.healthbuddy.domain.Helpful.YES -> s.yes
-                                org.dev.healthbuddy.domain.Helpful.NOT_SURE -> s.somewhat
-                                org.dev.healthbuddy.domain.Helpful.NO -> s.no
-                            },
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    if (log.note != null) {
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            text = "${s.noteLabel}: ${log.note}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    if (log.barrier != null && log.helpful == null) {
-                        Spacer(Modifier.height(10.dp))
-                        Text(
-                            text = s.wasHelpful,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.height(6.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            AssistChip(
-                                onClick = { state.setHelpful(log.id, Helpful.YES) },
-                                label = { Text(s.yes) }
-                            )
-                            AssistChip(
-                                onClick = { state.setHelpful(log.id, Helpful.NOT_SURE) },
-                                label = { Text(s.somewhat) }
-                            )
-                            AssistChip(
-                                onClick = { state.setHelpful(log.id, Helpful.NO) },
-                                label = { Text(s.no) }
+                        if (log.barrier != null) {
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = "${s.barrierLabel}: " +
+                                    org.dev.healthbuddy.domain.BarrierCatalog
+                                        .of(log.barrier).text(state.lang).label,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
-                    }
-                    if (needsReason) {
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            text = s.tapToExplain,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.tertiary
-                        )
-                    }
-                    Spacer(Modifier.height(2.dp))
-                    TextButton(
-                        onClick = { noteTarget = log },
-                        contentPadding = PaddingValues(0.dp),
-                        // Without the date/time this link is identical on every card.
-                        modifier = Modifier.semantics {
-                            contentDescription =
-                                "${if (log.note == null) s.addNote else s.editNote}, " +
-                                    "${Fmt.dayLabel(log.date, s)} ${Fmt.time(log.time)}"
+                        if (log.helpful != null) {
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                text = "${s.helpfulLabel}: " + when (log.helpful) {
+                                    org.dev.healthbuddy.domain.Helpful.YES -> s.yes
+                                    org.dev.healthbuddy.domain.Helpful.NOT_SURE -> s.somewhat
+                                    org.dev.healthbuddy.domain.Helpful.NO -> s.no
+                                },
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
-                    ) {
-                        Text(
-                            text = if (log.note == null) s.addNote else s.editNote,
-                            style = MaterialTheme.typography.labelLarge
-                        )
+                        if (log.note != null) {
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                text = "${s.noteLabel}: ${log.note}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        if (log.barrier != null && log.helpful == null) {
+                            Spacer(Modifier.height(10.dp))
+                            Text(
+                                text = s.wasHelpful,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(6.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                AssistChip(
+                                    onClick = { state.setHelpful(log.id, Helpful.YES) },
+                                    label = { Text(s.yes) }
+                                )
+                                AssistChip(
+                                    onClick = { state.setHelpful(log.id, Helpful.NOT_SURE) },
+                                    label = { Text(s.somewhat) }
+                                )
+                                AssistChip(
+                                    onClick = { state.setHelpful(log.id, Helpful.NO) },
+                                    label = { Text(s.no) }
+                                )
+                            }
+                        }
+                        if (needsReason) {
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                text = s.tapToExplain,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.tertiary
+                            )
+                        }
+                        Spacer(Modifier.height(2.dp))
+                        TextButton(
+                            onClick = { noteTarget = log },
+                            contentPadding = PaddingValues(0.dp),
+                            // Without the date/time this link is identical on every card.
+                            modifier = Modifier.semantics {
+                                contentDescription =
+                                    "${if (log.note == null) s.addNote else s.editNote}, " +
+                                        "${Fmt.dayLabel(log.date, s)} ${Fmt.time(log.time)}"
+                            }
+                        ) {
+                            Text(
+                                text = if (log.note == null) s.addNote else s.editNote,
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        }
                     }
                 }
             }
         }
+
+        // Hands the summary to whatever app the user picks. Kept as a FAB so
+        // the list starts immediately at the top of the screen.
+        ExtendedFloatingActionButton(
+            onClick = { shareVisitSummary(context, state, s) },
+            icon = { Icon(Lucide.Share2, contentDescription = null) },
+            text = { Text(s.shareSummary) },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        )
     }
 
     noteTarget?.let { log ->

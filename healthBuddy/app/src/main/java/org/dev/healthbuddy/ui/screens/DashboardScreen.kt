@@ -12,16 +12,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.composables.icons.lucide.CalendarDays
 import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.TriangleAlert
 import org.dev.healthbuddy.data.AppState
 import org.dev.healthbuddy.domain.BarrierCatalog
 import org.dev.healthbuddy.domain.DoseSlot
@@ -75,6 +82,11 @@ fun DashboardScreen(
         // Counts only: no score, no streak, no encouragement to chase a number.
         if (slots.isNotEmpty()) {
             item(key = "today-progress") {
+                val progress by animateFloatAsState(
+                    targetValue = takenToday.toFloat() / slots.size,
+                    animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
+                    label = "todayProgress"
+                )
                 Column(modifier = Modifier.padding(bottom = 4.dp)) {
                     Text(
                         text = s.todayProgress
@@ -87,15 +99,16 @@ fun DashboardScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(6.dp)
+                            .height(8.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                     ) {
                         if (takenToday > 0) {
                             Box(
                                 modifier = Modifier
-                                    .fillMaxWidth(takenToday.toFloat() / slots.size)
+                                    .fillMaxWidth(progress)
                                     .fillMaxHeight()
+                                    .clip(CircleShape)
                                     .background(MaterialTheme.colorScheme.primary)
                             )
                         }
@@ -202,9 +215,20 @@ private fun AttentionCard(
     HbCard(
         containerColor = container,
         contentColor = content,
-        onClick = onClick
+        onClick = onClick,
+        shape = MaterialTheme.shapes.extraLarge
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Lucide.TriangleAlert,
+                contentDescription = null,
+                tint = content,
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(content.copy(alpha = 0.15f), CircleShape)
+                    .padding(8.dp)
+            )
+            Spacer(Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = if (state.privateMode) s.medicinesTitle else slot.medicine.name,
