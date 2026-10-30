@@ -56,7 +56,7 @@ class PrescriptionScanner(context: Context) {
                 return@withContext ScanOutcome.Success(
                     onDevice.copy(
                         warnings = onDevice.warnings + listOf(
-                            "Groq AI could not read this prescription. The on‑device text is shown instead."
+                            "The AI (GPT-OSS 120B) could not read this prescription. The on‑device text is shown instead."
                         ),
                         aiConfigured = true
                     )
@@ -67,7 +67,7 @@ class PrescriptionScanner(context: Context) {
             ScanOutcome.Success(
                 onDevice.copy(
                     warnings = onDevice.warnings + if (useAi) {
-                        listOf("Groq AI is not configured. Using on‑device OCR only.")
+                        listOf("AI is not configured. Using on‑device OCR only.")
                     } else {
                         emptyList()
                     },
