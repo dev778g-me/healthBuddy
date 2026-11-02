@@ -22,8 +22,8 @@ android {
         applicationId = "org.dev.healthbuddy"
         minSdk = 31
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // Groq API key — set GROQ_API_KEY=... in local.properties and rebuild.
@@ -49,11 +49,19 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Temporary: validate that R8 shrinking does not break OCR/AI.
+            // Remove this block once verified.
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
         release {
-            optimization {
-                enable = true
-                packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
-            }
+            // Classic R8 shrinking. The experimental AGP 9 `optimization`
+            // block with packageScope merged Kotlin collections classes into
+            // something inaccessible and crashed every launch on real devices.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             if (localProps.containsKey("keystore.file")) {
                 signingConfig = signingConfigs.getByName("release")
             }
